@@ -11,7 +11,6 @@
 #include "Logic/WallCollisions.h"
 #include "Logic/SpatialHashGrid.h"
 #include <omp.h>
-#include "Logic/DensityEstimator.h"
 #include "Logic/BallCollisions.h"
 #include "Logic/Shader.h"
 #include "Logic/glad.h"
@@ -366,7 +365,6 @@ int main(int argv, const char** argc)
     NormalMover mover;
     LinearWallCollisions walls {30.0f, WINDOW_HEIGHT - 30.0f, 30.0f, WINDOW_WIDTH - 30.0f};
     SpatialHashGrid grid;
-    DensityEstimator estimator;
     BallCollisions collisions;
     SOARepository repository { BALL_NUMBER };
     

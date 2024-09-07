@@ -178,7 +178,6 @@
     <ClInclude Include="khrplatform.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpatialHashGrid.h" />
-    <ClInclude Include="DensityEstimator.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="IDManager.h" />
@@ -194,7 +193,6 @@
     <ClCompile Include="glad.cc" />
     <ClCompile Include="Shader.cc" />
     <ClCompile Include="SpatialHashGrid.cc" />
-    <ClCompile Include="DensityEstimator.cc" />
     <ClCompile Include="IDManager.cc" />
     <ClCompile Include="Mover.cc" />
     <ClCompile Include="pch.cpp">

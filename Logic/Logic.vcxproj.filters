@@ -45,9 +45,6 @@
     <ClInclude Include="WallCollisions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DensityEstimator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BallCollisions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,9 +81,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WallCollisions.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DensityEstimator.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BallCollisions.cc">
