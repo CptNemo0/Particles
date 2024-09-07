@@ -200,9 +200,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="resource.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\intelopenmp.redist.win.2024.2.1.1083\build\native\intelopenmp.redist.win.targets" Condition="Exists('..\packages\intelopenmp.redist.win.2024.2.1.1083\build\native\intelopenmp.redist.win.targets')" />

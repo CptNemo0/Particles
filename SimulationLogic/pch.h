@@ -18,5 +18,6 @@
 #include "framework.h"
 #include "glad.h"
 #include "Shader.h"
+#include "gltf_load.h"
 
 #endif //PCH_H

@@ -99,7 +99,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\tinygltf;C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -131,7 +131,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\tinygltf;C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -160,7 +160,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\tinygltf;C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -192,7 +192,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\tinygltf;C:\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -217,6 +217,7 @@
     <ClInclude Include="BallCollisions.h" />
     <ClInclude Include="BallRepository.h" />
     <ClInclude Include="glad.h" />
+    <ClInclude Include="gltf_load.h" />
     <ClInclude Include="khrplatform.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpatialHashGrid.h" />
