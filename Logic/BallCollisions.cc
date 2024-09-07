@@ -3,7 +3,7 @@
 #include <iostream>
 void BallCollisions::SeperateBalls(SpatialHashGrid& grid, SOARepository& repository)
 {
-	for (int id = 0; id < repository.size_; id++)
+	for (int id = 0; id < static_cast<int>(repository.size_); id++)
 	{
 		float& x = repository.nx_[id];
 		float& y = repository.ny_[id];
@@ -45,7 +45,7 @@ void BallCollisions::SeperateBalls(SpatialHashGrid& grid, SOARepository& reposit
 					{
 						if (distance2 < 0.0000001)
 						{
-							distance2 = 0.00001;
+							distance2 = 0.00001f;
 						}
 
 						float distance = sqrtf(distance2);
@@ -68,10 +68,10 @@ void BallCollisions::SeperateBalls(SpatialHashGrid& grid, SOARepository& reposit
 						repository.nx_[id] += displacement_2.x;
 						repository.ny_[id] += displacement_2.y;
 
-						repository.speedx_[id] *= 0.999;
-						repository.speedy_[id] *= 0.999;
-						repository.speedx_[idx] *= 0.999;
-						repository.speedy_[idx] *= 0.999;
+						repository.speedx_[id] *= 0.999f;
+						repository.speedy_[id] *= 0.999f;
+						repository.speedx_[idx] *= 0.999f;
+						repository.speedy_[idx] *= 0.999f;
 
 					}
 					i++;

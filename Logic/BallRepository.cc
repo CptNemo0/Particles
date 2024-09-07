@@ -5,14 +5,14 @@ SOARepository::SOARepository(const unsigned int size)
 {
 	assert(!(size % SIMD_BLOCK_SIZE));
 
-	srand(time(NULL));
+	srand(time(0));
 
 	this->size_ = size;
 
-	int particles_per_row = sqrt(BALL_NUMBER);
+	int particles_per_row = static_cast<int>(sqrt(BALL_NUMBER));
 	int particles_per_column = (BALL_NUMBER - 1) / particles_per_row + 1;
-	int spacex = RADIUS * 2 + 5.0f;
-	int spacey = RADIUS * 2 + 2.0f;
+	int spacex = static_cast<int>(RADIUS * 2.0f + 1.0f);
+	int spacey = static_cast<int>(RADIUS * 2.0f + 1.0f);
 
 	for (unsigned int i = 0; i < size_; i++)
 	{
@@ -24,9 +24,8 @@ SOARepository::SOARepository(const unsigned int size)
 		speedx_[i] = static_cast<float>(rand() % 1000 - 0) / 1000.0f;
 		speedy_[i] = static_cast<float>(rand() % 1000 - 1000) / 1000.0f;
 
-		speedx_[i] *= 300.0f;
-		speedy_[i] *= 0.0f;
-
+		speedx_[i] *= 10.0f;
+		speedy_[i] *= 10.0f;
 
 		px_[i] = x_[i] - speedx_[i];
 		py_[i] = y_[i] - speedy_[i];

@@ -15,78 +15,78 @@
 #include "Logic/Shader.h"
 #include "Logic/glad.h"
 #include "GLFW/glfw3.h"
-#include <numeric>
+//#include <numeric>
 #include "tiny_gltf.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-bool loadModel(tinygltf::Model& model, const char* filename) {
+bool LoadModel(tinygltf::Model& model, const char* filename)
+{
     tinygltf::TinyGLTF loader;
     std::string err;
     std::string warn;
 
     bool res = loader.LoadASCIIFromFile(&model, &err, &warn, filename);
-    if (!warn.empty()) {
+    if (!warn.empty()) 
+    {
         std::cout << "WARN: " << warn << std::endl;
     }
 
-    if (!err.empty()) {
+    if (!err.empty()) 
+    {
         std::cout << "ERR: " << err << std::endl;
     }
 
     if (!res)
+    {
         std::cout << "Failed to load glTF: " << filename << std::endl;
+    }
     else
+    {
         std::cout << "Loaded glTF: " << filename << std::endl;
+    }
 
     return res;
 }
 
-void bindMesh(std::map<int, GLuint>& vbos,
-    tinygltf::Model& model, tinygltf::Mesh& mesh) {
-    for (size_t i = 0; i < model.bufferViews.size(); ++i)
+void BindMesh(std::map<int, GLuint>& vbos, tinygltf::Model& model, tinygltf::Mesh& mesh)
+{
+    int buffer_view_number = static_cast<int>(model.bufferViews.size());
+    for (int i = 0; i < buffer_view_number; ++i)
     {
-        const tinygltf::BufferView& bufferView = model.bufferViews[i];
-        if (bufferView.target == 0)
-        {  // TODO impl drawarrays
+        const tinygltf::BufferView& buffer_view = model.bufferViews[i];
+        if (buffer_view.target == 0)
+        {  
             std::cout << "WARN: bufferView.target is zero" << std::endl;
-            continue;  // Unsupported bufferView.
-            /*
-              From spec2.0 readme:
-              https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
-                       ... drawArrays function should be used with a count equal to
-              the count            property of any of the accessors referenced by the
-              attributes            property            (they are all equal for a given
-              primitive).
-            */
+            continue;  
         }
 
-        const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-        std::cout << "bufferview.target " << bufferView.target << std::endl;
+        const tinygltf::Buffer& buffer = model.buffers[buffer_view.buffer];
+        std::cout << "bufferview.target " << buffer_view.target << std::endl;
 
         GLuint vbo;
         glGenBuffers(1, &vbo);
         vbos[i] = vbo;
-        glBindBuffer(bufferView.target, vbo);
+        glBindBuffer(buffer_view.target, vbo);
 
         std::cout << "buffer.data.size = " << buffer.data.size()
-            << ", bufferview.byteOffset = " << bufferView.byteOffset
+            << ", bufferview.byteOffset = " << buffer_view.byteOffset
             << std::endl;
 
-        glBufferData(bufferView.target, bufferView.byteLength,
-            &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
+        glBufferData(buffer_view.target, buffer_view.byteLength, &buffer.data.at(0) + buffer_view.byteOffset, GL_STATIC_DRAW);
     }
 
-    for (size_t i = 0; i < mesh.primitives.size(); ++i)
+    int primitives_number = static_cast<int>(mesh.primitives.size());
+    for (int i = 0; i < primitives_number; ++i)
     {
         tinygltf::Primitive primitive = mesh.primitives[i];
-        tinygltf::Accessor indexAccessor = model.accessors[primitive.indices];
+        tinygltf::Accessor index_accessor = model.accessors[primitive.indices];
 
         for (auto& attrib : primitive.attributes)
         {
             tinygltf::Accessor accessor = model.accessors[attrib.second];
-            int byteStride =
-                accessor.ByteStride(model.bufferViews[accessor.bufferView]);
+            int byte_stride = accessor.ByteStride(model.bufferViews[accessor.bufferView]);
+                
             glBindBuffer(GL_ARRAY_BUFFER, vbos[accessor.bufferView]);
 
             int size = 1;
@@ -102,19 +102,22 @@ void bindMesh(std::map<int, GLuint>& vbos,
             if (vaa > -1)
             {
                 glEnableVertexAttribArray(vaa);
-                glVertexAttribPointer(vaa, size, accessor.componentType,
-                    accessor.normalized ? GL_TRUE : GL_FALSE,
-                    byteStride, BUFFER_OFFSET(accessor.byteOffset));
+                glVertexAttribPointer(vaa, size, accessor.componentType, accessor.normalized ? GL_TRUE : GL_FALSE, byte_stride, BUFFER_OFFSET(accessor.byteOffset));
             }
             else
+            {
                 std::cout << "vaa missing: " << attrib.first << std::endl;
+            }
         }
 
-        if (model.textures.size() > 0) {
+        int texture_number = static_cast<int>(model.textures.size());
+        if (texture_number > 0)
+        {
             // fixme: Use material's baseColor
             tinygltf::Texture& tex = model.textures[0];
 
-            if (tex.source > -1) {
+            if (tex.source > -1) 
+            {
 
                 GLuint texid;
                 glGenTextures(1, &texid);
@@ -130,73 +133,76 @@ void bindMesh(std::map<int, GLuint>& vbos,
 
                 GLenum format = GL_RGBA;
 
-                if (image.component == 1) {
+                if (image.component == 1) 
+                {
                     format = GL_RED;
                 }
-                else if (image.component == 2) {
+                else if (image.component == 2) 
+                {
                     format = GL_RG;
                 }
-                else if (image.component == 3) {
+                else if (image.component == 3) 
+                {
                     format = GL_RGB;
                 }
-                else {
-                    // ???
-                }
-
+                
                 GLenum type = GL_UNSIGNED_BYTE;
-                if (image.bits == 8) {
+                if (image.bits == 8) 
+                {
                     // ok
                 }
-                else if (image.bits == 16) {
+                else if (image.bits == 16) 
+                {
                     type = GL_UNSIGNED_SHORT;
                 }
-                else {
-                    // ???
-                }
 
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0,
-                    format, type, &image.image.at(0));
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, format, type, &image.image.at(0));   
             }
         }
     }
 }
 
-// bind models
-void bindModelNodes(std::map<int, GLuint>& vbos, tinygltf::Model& model,
-    tinygltf::Node& node) {
-    if ((node.mesh >= 0) && (node.mesh < model.meshes.size()))
+void BindModelNodes(std::map<int, GLuint>& vbos, tinygltf::Model& model, tinygltf::Node& node)
+{
+    if ((node.mesh >= 0) && (node.mesh < static_cast<int>(model.meshes.size())))
     {
-        bindMesh(vbos, model, model.meshes[node.mesh]);
+        BindMesh(vbos, model, model.meshes[node.mesh]);
     }
 
-    for (size_t i = 0; i < node.children.size(); i++) {
-        assert((node.children[i] >= 0) && (node.children[i] < model.nodes.size()));
-        bindModelNodes(vbos, model, model.nodes[node.children[i]]);
+    for (int i = 0; i < node.children.size(); i++) 
+    {
+        assert((node.children[i] >= 0) && (node.children[i] < static_cast<int>(model.nodes.size())));
+        BindModelNodes(vbos, model, model.nodes[node.children[i]]);
     }
 }
 
-std::pair<GLuint, std::map<int, GLuint>> bindModel(tinygltf::Model& model) {
+std::pair<GLuint, std::map<int, GLuint>> BindModel(tinygltf::Model& model) 
+{
     std::map<int, GLuint> vbos;
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
     const tinygltf::Scene& scene = model.scenes[model.defaultScene];
-    for (size_t i = 0; i < scene.nodes.size(); ++i)
+    int nodes_number = static_cast<int>(scene.nodes.size());
+    for (int i = 0; i < nodes_number; ++i)
     {
-        assert((scene.nodes[i] >= 0) && (scene.nodes[i] < model.nodes.size()));
-        bindModelNodes(vbos, model, model.nodes[scene.nodes[i]]);
+        assert((scene.nodes[i] >= 0) && (scene.nodes[i] < static_cast<int>(model.nodes.size())));
+        BindModelNodes(vbos, model, model.nodes[scene.nodes[i]]);
     }
 
     glBindVertexArray(0);
-    // cleanup vbos but do not delete index buffers yet
-    for (auto it = vbos.cbegin(); it != vbos.cend();) {
+    
+    for (auto it = vbos.cbegin(); it != vbos.cend();) 
+    {
         tinygltf::BufferView bufferView = model.bufferViews[it->first];
-        if (bufferView.target != GL_ELEMENT_ARRAY_BUFFER) {
+        if (bufferView.target != GL_ELEMENT_ARRAY_BUFFER) 
+        {
             glDeleteBuffers(1, &vbos[it->first]);
             vbos.erase(it++);
         }
-        else {
+        else 
+        {
             ++it;
         }
     }
@@ -204,10 +210,10 @@ std::pair<GLuint, std::map<int, GLuint>> bindModel(tinygltf::Model& model) {
     return { vao, vbos };
 }
 
-void drawMesh(const std::map<int, GLuint>& vbos, tinygltf::Model& model, tinygltf::Mesh& mesh)
+void DrawMesh(const std::map<int, GLuint>& vbos, tinygltf::Model& model, tinygltf::Mesh& mesh)
 {
-
-    for (size_t i = 0; i < mesh.primitives.size(); ++i)
+    int primitives_num = static_cast<int>(mesh.primitives.size());
+    for (int i = 0; i < primitives_num; ++i)
     {
         tinygltf::Primitive primitive = mesh.primitives[i];
         tinygltf::Accessor indexAccessor = model.accessors[primitive.indices];
@@ -215,61 +221,68 @@ void drawMesh(const std::map<int, GLuint>& vbos, tinygltf::Model& model, tinyglt
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos.at(indexAccessor.bufferView));
 
         glDrawElementsInstanced(primitive.mode,
-            indexAccessor.count,
+            static_cast<int>(indexAccessor.count),
             indexAccessor.componentType,
             BUFFER_OFFSET(indexAccessor.byteOffset), BALL_NUMBER);
     }
 }
 
 // recursively draw node and children nodes of model
-void drawModelNodes(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos,
-    tinygltf::Model& model, tinygltf::Node& node) {
-    if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
-        drawMesh(vaoAndEbos.second, model, model.meshes[node.mesh]);
+void DrawModelNodes(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos, tinygltf::Model& model, tinygltf::Node& node)
+{
+    if ((node.mesh >= 0) && (node.mesh < static_cast<int>(model.meshes.size())))
+    {
+        DrawMesh(vaoAndEbos.second, model, model.meshes[node.mesh]);
     }
     for (size_t i = 0; i < node.children.size(); i++) {
-        drawModelNodes(vaoAndEbos, model, model.nodes[node.children[i]]);
+        DrawModelNodes(vaoAndEbos, model, model.nodes[node.children[i]]);
     }
 }
-void drawModel(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos,
-    tinygltf::Model& model) {
+
+void DrawModel(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos, tinygltf::Model& model)
+{
     glBindVertexArray(vaoAndEbos.first);
 
     const tinygltf::Scene& scene = model.scenes[model.defaultScene];
-    for (size_t i = 0; i < scene.nodes.size(); ++i) {
-        drawModelNodes(vaoAndEbos, model, model.nodes[scene.nodes[i]]);
+    int node_number = static_cast<int>(scene.nodes.size());
+    for (int i = 0; i < node_number; ++i) 
+    {
+        DrawModelNodes(vaoAndEbos, model, model.nodes[scene.nodes[i]]);
     }
 
     glBindVertexArray(0);
 }
 
-void dbgModel(tinygltf::Model& model) {
-    for (auto& mesh : model.meshes) {
+void DebugModel(tinygltf::Model& model) 
+{
+    for (auto& mesh : model.meshes) 
+    {
         std::cout << "mesh : " << mesh.name << std::endl;
-        for (auto& primitive : mesh.primitives) {
-            const tinygltf::Accessor& indexAccessor =
-                model.accessors[primitive.indices];
-
-            std::cout << "indexaccessor: count " << indexAccessor.count << ", type "
-                << indexAccessor.componentType << std::endl;
+        for (auto& primitive : mesh.primitives) 
+        {
+            const tinygltf::Accessor& indexAccessor = model.accessors[primitive.indices];
+                
+            std::cout << "indexaccessor: count " << indexAccessor.count << ", type " << indexAccessor.componentType << std::endl;
 
             tinygltf::Material& mat = model.materials[primitive.material];
-            for (auto& mats : mat.values) {
+            for (auto& mats : mat.values) 
+            {
                 std::cout << "mat : " << mats.first.c_str() << std::endl;
             }
 
-            for (auto& image : model.images) {
+            for (auto& image : model.images) 
+            {
                 std::cout << "image name : " << image.uri << std::endl;
                 std::cout << "  size : " << image.image.size() << std::endl;
-                std::cout << "  w/h : " << image.width << "/" << image.height
-                    << std::endl;
+                std::cout << "  w/h : " << image.width << "/" << image.height << std::endl;
+                    
             }
 
             std::cout << "indices : " << primitive.indices << std::endl;
-            std::cout << "mode     : "
-                << "(" << primitive.mode << ")" << std::endl;
-
-            for (auto& attrib : primitive.attributes) {
+            std::cout << "mode     : " << "(" << primitive.mode << ")" << std::endl;
+                
+            for (auto& attrib : primitive.attributes) 
+            {
                 std::cout << "attribute : " << attrib.first.c_str() << std::endl;
             }
         }
@@ -347,17 +360,17 @@ int main(int argv, const char** argc)
 
     Shader shader("C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\BasicShader.vert", "C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\BasicShader.frag");
     tinygltf::Model model_;
-    loadModel(model_, "C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\Models\\ball.gltf");
-    auto vaoAndEbos = bindModel(model_);
+    LoadModel(model_, "C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\Models\\ball.gltf");
+    auto vaoAndEbos = BindModel(model_);
     
     glm::vec4 view_matrix_c1 = glm::vec4(1.0, 0.0,  0.0, 0.0);
     glm::vec4 view_matrix_c2 = glm::vec4(0.0, 1.0,  0.0, 0.0);
     glm::vec4 view_matrix_c3 = glm::vec4(0.0, 0.0, -1.0, 0.0);
-    glm::vec4 view_matrix_c4 = glm::vec4(800.0, 450.0, -100.0, 1.0);
-    //glm::mat4 view_matrix(view_matrix_c1, view_matrix_c2, view_matrix_c3, view_matrix_c4);
-    glm::mat4 view_matrix = ViewMatrix({ 800.0, 450.0, -300.0 });
-    //glm::mat4 projection_matrix = glm::orthoRH(0.0, 1600.0, 900.0, 0.0, 0.01, 1000.00);
-    glm::mat4 projection_matrix = glm::perspective(180.0f, 1600.0f/900.0f, 0.01f, 1000.00f);
+    glm::vec4 view_matrix_c4 = glm::vec4(0.0, 0.0, -1.0, 1.0);
+    glm::mat4 view_matrix(view_matrix_c1, view_matrix_c2, view_matrix_c3, view_matrix_c4);
+    //glm::mat4 view_matrix = ViewMatrix({ 800.0, 450.0, -300.0 });
+    glm::mat4 projection_matrix = glm::orthoRH(0.0, 1600.0, 900.0, 0.0, 0.01, 1000.00);
+    //glm::mat4 projection_matrix = glm::perspective(180.0f, 1600.0f/900.0f, 0.01f, 1000.00f);
     shader.Use();
     shader.SetMatrix4("view_matrix", view_matrix);
     shader.SetMatrix4("projection_matrix", projection_matrix);
@@ -383,7 +396,7 @@ int main(int argv, const char** argc)
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.37f, 0.55, 0.54, 1.0f);
+        glClearColor(0.37f, 0.55f, 0.54f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         
@@ -392,9 +405,9 @@ int main(int argv, const char** argc)
 
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        repository.nx_[0] = xpos;
-        repository.ny_[0] = ypos;
-        repository.radius_[0] = 20;
+        repository.nx_[0] = static_cast<float>(xpos);
+        repository.ny_[0] = static_cast<float>(ypos);
+        repository.radius_[0] = 20.0f;
 
         grid.UpdateGrid(repository);        
         collisions.SeperateBalls(grid, repository);
@@ -407,17 +420,27 @@ int main(int argv, const char** argc)
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, position_ssbo);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * BALL_NUMBER * 2, static_cast<const void*>(&repository.output_position_));
         
-        drawModel(vaoAndEbos, model_);
+        DrawModel(vaoAndEbos, model_);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         
         durations_.push_back(static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - begin).count()));
         
         if (idx == 100)
         {
-            auto a = std::accumulate(durations_.begin(), durations_.end(), 0);
-            auto fps = 100000000.0 / a;
+            auto sum = [](std::vector<double>& durations) 
+            {
+                double return_value = 0.0;
+                for(auto duration : durations)
+                {
+                    return_value += duration;
+                }
+                return return_value;
+            };
+            auto result = sum(durations_);
+            result *= 0.01;
+            auto fps = 1000000.0 / result;
             std::cout << "fps: " << fps << std::endl;
-            std::cout << repository.x_[BALL_NUMBER / 2] << " " << repository.y_[BALL_NUMBER / 2] << std::endl;
+            
             idx = 0;
             durations_.clear();
         }

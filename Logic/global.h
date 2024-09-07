@@ -5,7 +5,7 @@
 namespace 
 {
 	const unsigned int MAX_BALL_NUMBER = 50000;
-	const unsigned int BALL_NUMBER = 1024 * 20; //*40
+	const unsigned int BALL_NUMBER = 1024 * 40; //*40
 
 	const float FIXED_DT = 1.0f / 240.0f;
 
@@ -16,7 +16,7 @@ namespace
 	int const WINDOW_WIDTH = 1600;
 	int const WINDOW_HEIGHT = 900;
 
-	const float RADIUS = 2.0f;    //1.5f
+	const float RADIUS = 1.5f;    //1.5f
 	const float INFLUENCE_RADIUS = 6.0f;
 	const float CELL_SIZE = 6.0f;
 	
