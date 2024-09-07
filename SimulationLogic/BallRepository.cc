@@ -1,11 +1,12 @@
 #include "pch.h"
 #include <random>
+#include <ctime>
 
 SOARepository::SOARepository(const unsigned int size)
 {
 	assert(!(size % SIMD_BLOCK_SIZE));
 
-	srand(time(0));
+	srand(static_cast<unsigned int>(time(0)));
 
 	this->size_ = size;
 

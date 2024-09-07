@@ -9,12 +9,10 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
-#include "BallManager.h"
 #include "BallRepository.h"
 #include "BallCollisions.h"
 #include "SpatialHashGrid.h"
 #include "global.h"
-#include "IDManager.h"
 #include "Mover.h"
 #include "utility.h"
 #include "framework.h"

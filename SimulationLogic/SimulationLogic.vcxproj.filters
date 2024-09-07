@@ -21,9 +21,6 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BallManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BallRepository.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -31,9 +28,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IDManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mover.h">
@@ -62,16 +56,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BallManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BallRepository.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SpatialHashGrid.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IDManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mover.cc">
@@ -92,5 +80,8 @@
     <ClCompile Include="Shader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
