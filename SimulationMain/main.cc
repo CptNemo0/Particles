@@ -86,25 +86,20 @@ int main(int argv, const char** argc)
     omp_set_dynamic(0);
 #pragma endregion
 
-    Shader shader("C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\Shaders\\BasicShader.vert", "C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\Shaders\\BasicShader.frag");
+    Shader shader("..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag");
     tinygltf::Model model_;
-    LoadModel(model_, "C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\Models\\ball.gltf");
+    LoadModel(model_, "..\\Models\\ball.gltf");
     auto vaoAndEbos = BindModel(model_);
 
-    glm::vec4 view_matrix_c1 = glm::vec4(1.0, 0.0, 0.0, 0.0);
-    glm::vec4 view_matrix_c2 = glm::vec4(0.0, 1.0, 0.0, 0.0);
-    glm::vec4 view_matrix_c3 = glm::vec4(0.0, 0.0, -1.0, 0.0);
-    glm::vec4 view_matrix_c4 = glm::vec4(0.0, 0.0, -1.0, 1.0);
-    //glm::mat4 view_matrix(view_matrix_c1, view_matrix_c2, view_matrix_c3, view_matrix_c4);
-    glm::mat4 view_matrix = ViewMatrix({ 50.0f, 50.0f, 50.0f });
-    //glm::mat4 projection_matrix = glm::orthoRH(0.0, 1600.0, 900.0, 0.0, 0.01, 1000.00);
+    glm::mat4 view_matrix = ViewMatrix({ 450.0f, 350.0f, 250.0f });
     glm::mat4 projection_matrix = glm::perspective(90.0f, 1600.0f/900.0f, 0.01f, 10000.00f);
+
     shader.Use();
     shader.SetMatrix4("view_matrix", view_matrix);
     shader.SetMatrix4("projection_matrix", projection_matrix);
 
     NormalMover mover;
-    WallCollisions3D walls{ -25.0f, 25.0f, -25.0f, 25.0f, -25.0f, 25.0f };
+    WallCollisions3D walls{ -200.0f, 200.0f, -200.0f, 200.0f, -200.0f, 200.0f };
     SpatialHashGrid grid;
     BallCollisions2d collisions;
     SOARepository repository = SOARepository(BALL_NUMBER, D3);
@@ -124,7 +119,7 @@ int main(int argv, const char** argc)
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.37f, 0.55f, 0.54f, 1.0f);
+        glClearColor(0.175f, 0.2525f, 0.27f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 

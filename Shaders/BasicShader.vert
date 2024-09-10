@@ -1,7 +1,6 @@
 #version 430 core
 
 layout (location = 0) in vec3 iv_position;
-layout (location = 1) in vec3 iv_normal;
 
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
@@ -11,11 +10,7 @@ layout(std430, binding = 1) buffer position_buffer
     float data[];
 };
 
-out struct VsOut
-{
-  vec4 world_position;
-} vertex_shader_output;
-
+out vec3 color;
 
 mat4 ScaleMatrix(vec3 scale) 
 {
@@ -49,5 +44,8 @@ void main()
     
 	gl_Position = projection_matrix * view_matrix * model_matrix * world_position;
 
-    vertex_shader_output.world_position = world_position;
+    vec3 a = vec3(0.0, 0.0, 0.0) - world_position.xyz;
+    float l = length(a);
+
+    color = (346.0 - l) / 346.0 * vec3(1.0);
 }

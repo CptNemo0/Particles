@@ -5,7 +5,7 @@
 namespace 
 {
 	const unsigned int MAX_BALL_NUMBER = 50000;
-	const unsigned int BALL_NUMBER = 64 * 8; //*40
+	const unsigned int BALL_NUMBER = 1024 * 8; //*40
 
 	const float FIXED_DT = 1.0f / 240.0f;
 

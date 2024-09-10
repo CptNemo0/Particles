@@ -1,14 +1,10 @@
 #version 430 core
 
-in struct VsOut
-{
-  vec4 world_position;
-} vertex_shader_output;
+in vec3 color;
 
-
-out vec4 color;
+out vec4 out_color;
 
 void main()
 {
-   color = vec4(0.4, 0.4, 0.2, 1.0);
+	out_color = vec4(color, 1.0);
 }
