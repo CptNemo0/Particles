@@ -10,6 +10,7 @@
 #include "../SimulationLogic/SpatialHashGrid.h"
 #include "../SimulationLogic/Shader.h"
 #include "../SimulationLogic/WallCollisions.h"
+
 #include "../SimulationLogic/gltf_load.h"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
@@ -19,7 +20,7 @@
 
 
 glm::mat4 ViewMatrix(glm::vec3 cameraPos) {
-    glm::vec3 camera_target = glm::vec3(WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 0.0);
+    glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
 
     glm::vec3 forward = glm::normalize(cameraPos - camera_target);
@@ -94,27 +95,27 @@ int main(int argv, const char** argc)
     glm::vec4 view_matrix_c2 = glm::vec4(0.0, 1.0, 0.0, 0.0);
     glm::vec4 view_matrix_c3 = glm::vec4(0.0, 0.0, -1.0, 0.0);
     glm::vec4 view_matrix_c4 = glm::vec4(0.0, 0.0, -1.0, 1.0);
-    glm::mat4 view_matrix(view_matrix_c1, view_matrix_c2, view_matrix_c3, view_matrix_c4);
-    //glm::mat4 view_matrix = ViewMatrix({ 800.0, 450.0, -300.0 });
-    glm::mat4 projection_matrix = glm::orthoRH(0.0, 1600.0, 900.0, 0.0, 0.01, 1000.00);
-    //glm::mat4 projection_matrix = glm::perspective(180.0f, 1600.0f/900.0f, 0.01f, 1000.00f);
+    //glm::mat4 view_matrix(view_matrix_c1, view_matrix_c2, view_matrix_c3, view_matrix_c4);
+    glm::mat4 view_matrix = ViewMatrix({ 50.0f, 50.0f, 50.0f });
+    //glm::mat4 projection_matrix = glm::orthoRH(0.0, 1600.0, 900.0, 0.0, 0.01, 1000.00);
+    glm::mat4 projection_matrix = glm::perspective(90.0f, 1600.0f/900.0f, 0.01f, 10000.00f);
     shader.Use();
     shader.SetMatrix4("view_matrix", view_matrix);
     shader.SetMatrix4("projection_matrix", projection_matrix);
 
     NormalMover mover;
-    LinearWallCollisions walls{ 30.0f, WINDOW_HEIGHT - 30.0f, 30.0f, WINDOW_WIDTH - 30.0f };
+    WallCollisions3D walls{ -25.0f, 25.0f, -25.0f, 25.0f, -25.0f, 25.0f };
     SpatialHashGrid grid;
-    BallCollisions collisions;
-    SOARepository repository{ BALL_NUMBER };
+    BallCollisions2d collisions;
+    SOARepository repository = SOARepository(BALL_NUMBER, D3);
 
     unsigned int position_ssbo;
     unsigned int binding_point = 1;
     glGenBuffers(1, &position_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, position_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 2 * BALL_NUMBER, static_cast<const void*>(&repository.output_position_), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * BALL_NUMBER * 3, static_cast<const void*>(&repository.output_position_), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, position_ssbo);
-
+    
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 
     std::vector<double> durations_;
@@ -129,19 +130,16 @@ int main(int argv, const char** argc)
 
         mover.UpdateVelocities(repository);
         mover.PredictPositions(repository);
-        grid.UpdateGrid(repository);
-        collisions.SeperateBalls(grid, repository);
-        walls.CollideWalls(repository);
         walls.CollideWalls(repository);
         mover.UpdatePositions(repository);
 
         shader.Use();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, position_ssbo);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * BALL_NUMBER * 2, static_cast<const void*>(&repository.output_position_));
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * BALL_NUMBER * 3, static_cast<const void*>(&repository.output_position_));
 
         InstanceModel(vaoAndEbos, model_, BALL_NUMBER);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
+        
 #pragma region FPS
         durations_.push_back(static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - begin).count()));
         if (idx == 100)
@@ -158,7 +156,7 @@ int main(int argv, const char** argc)
             auto result = sum(durations_);
             result *= 0.01;
             auto fps = 1000000.0 / result;
-            std::cout << "fps: " << fps << std::endl;
+            //std::cout << "fps: " << fps << std::endl;
 
             idx = 0;
             durations_.clear();

@@ -1,8 +1,14 @@
 #version 430 core
 
-out vec4 FragColor;
+in struct VsOut
+{
+  vec4 world_position;
+} vertex_shader_output;
+
+
+out vec4 color;
 
 void main()
 {
-   FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+   color = vec4(0.4, 0.4, 0.2, 1.0);
 }

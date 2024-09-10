@@ -5,12 +5,12 @@
 #include <omp.h>
 
 
-void LinearWallCollisions::Init()
+void WallCollisions2D::Init()
 {
 
 }
 
-void LinearWallCollisions::CollideWalls(SOARepository& repository)
+void WallCollisions2D::CollideWalls(SOARepository& repository)
 {
 	int n = static_cast<int>(repository.size_);
 
@@ -69,4 +69,77 @@ void LinearWallCollisions::CollideWalls(SOARepository& repository)
 	}
 }
 
+void WallCollisions3D::Init()
+{
+}
 
+void WallCollisions3D::CollideWalls(SOARepository& repository)
+{
+	int n = static_cast<int>(repository.size_);
+
+	for (int i = 0; i < n; i++)
+	{
+		float& x = repository.x_[i];
+		float& y = repository.y_[i];
+		float& z = repository.z_[i];
+		float& nx = repository.nx_[i];
+		float& ny = repository.ny_[i];
+		float& nz = repository.nz_[i];
+		float& speedx = repository.speedx_[i];
+		float& speedy = repository.speedy_[i];
+		float& speedz = repository.speedz_[i];
+		float& radius = repository.radius_[i];
+
+		const float RIGHT_MRADIUS = right_ - radius;
+		const float DOWN_MRADIUS  = down_  - radius;
+		const float NEAR_MRADIUS  = near_  - radius;
+		const float LEFT_ARADIUS  = left_  + radius;
+		const float TOP_ARADIUS   = top_   + radius;
+		const float FAR_ARADIUS   = far_   + radius;
+		
+		if (nx <= LEFT_ARADIUS)
+		{
+			auto dx = x - nx;
+			auto offset = LEFT_ARADIUS - nx;
+			nx += offset;
+			x = nx - dx;
+		}
+		else if (nx >= RIGHT_MRADIUS)
+		{
+			auto dx = nx -x;
+			auto offset = nx - RIGHT_MRADIUS;
+			nx -= offset;
+			x = nx + dx;
+		}
+
+		if (ny <= TOP_ARADIUS)
+		{
+			auto dy = y - ny;
+			auto offset = TOP_ARADIUS - ny;
+			ny += offset;
+			y = ny - dy;
+		}
+		else if (ny >= DOWN_MRADIUS)
+		{
+			auto dy = ny - y;
+			auto offset = ny - DOWN_MRADIUS;
+			ny -= offset;
+			y = ny + dy;
+		}
+
+		if (nz <= FAR_ARADIUS)
+		{
+			auto dz = z - nz;
+			auto offset = FAR_ARADIUS - nz;
+			nz += offset;
+			z = nz - dz;
+		}
+		else if (nz >= NEAR_MRADIUS)
+		{
+			auto dz = nz - z;
+			auto offset = nz - NEAR_MRADIUS;
+			nz -= offset;
+			z = nz + dz;
+		}
+	}
+}

@@ -10,8 +10,10 @@ class Mover
 		Mover() = default;
 		~Mover() = default;
 
-		virtual void Init(const SOARepository& repository) = 0;
-		virtual void Step(SOARepository& repository) = 0;
+		virtual void Init      (const SOARepository& repository) = 0;
+		virtual void UpdateVelocities(SOARepository& repository) = 0;
+		virtual void PredictPositions(SOARepository& repository) = 0;
+		virtual void UpdatePositions (SOARepository& repository) = 0;
 };
 
 class NormalMover : public Mover
@@ -20,11 +22,10 @@ class NormalMover : public Mover
 		NormalMover();
 		~NormalMover() = default;
 
-		void Step(SOARepository& repository) override;
-		void Init(const SOARepository& repository) override;
-		void PredictPositions(SOARepository& repository);
-		void UpdatePositions(SOARepository& repository);
-		void UpdateVelocities(SOARepository& repository);
+		void Init	   (const SOARepository& repository) override;
+		void UpdateVelocities(SOARepository& repository) override;
+		void PredictPositions(SOARepository& repository) override;
+		void UpdatePositions (SOARepository& repository) override;
 };
 
 class SIMDMover : public Mover
@@ -33,8 +34,8 @@ class SIMDMover : public Mover
 		SIMDMover();
 		~SIMDMover() = default;
 		
-		void Init(const SOARepository& repository) override;
-		void Step(SOARepository& repository) override;
-		void PredictPositions(SOARepository& repository);
-		void UpdatePositions(SOARepository& repository);
+		void Init      (const SOARepository& repository) override;
+		void UpdateVelocities(SOARepository& repository) override;
+		void PredictPositions(SOARepository& repository) override;
+		void UpdatePositions (SOARepository& repository) override;
 };

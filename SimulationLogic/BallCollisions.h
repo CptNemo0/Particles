@@ -7,7 +7,7 @@
 
 class BallCollisions
 {
-private:
+protected:
 	std::vector<std::pair<int, int>> offsets_2d
 	{
 		{-1, -1},
@@ -64,8 +64,24 @@ private:
 
 
 public:
-	BallCollisions() = default;
 
-	void SeperateBalls(SpatialHashGrid& grid, SOARepository& repository);
+	virtual void SeperateBalls(SOARepository& repository) = 0;
+	virtual void SeperateBalls(SpatialHashGrid& grid, SOARepository& repository) = 0;
 };
 
+class BallCollisions2d : public BallCollisions
+{
+public:
+	BallCollisions2d() = default;
+	
+	void SeperateBalls(SOARepository& repository) override;
+	void SeperateBalls(SpatialHashGrid& grid, SOARepository& repository) override;
+};
+
+class BallCollisions3d : public BallCollisions
+{
+	BallCollisions3d() = default;
+	
+	void SeperateBalls(SOARepository& repository) override;
+	void SeperateBalls(SpatialHashGrid& grid, SOARepository& repository) override;
+};

@@ -10,6 +10,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimulationMain", "Simulatio
 		{25F1B9D5-59EC-4901-8A2D-5A38149EF1FF} = {25F1B9D5-59EC-4901-8A2D-5A38149EF1FF}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{965F3FCC-6262-42D7-BFFF-5699374F111C}"
+	ProjectSection(SolutionItems) = preProject
+		Shaders\BasicShader.frag = Shaders\BasicShader.frag
+		Shaders\BasicShader.vert = Shaders\BasicShader.vert
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
