@@ -22,15 +22,16 @@ void SpatialHashGrid::UpdateGrid()
 
 	QuickSrot(spatial_lookup_, 0, n - 1);
 
-#pragma omp parallel for
-    for (int i = 0; i < n; i++)
+    if (spatial_lookup_[0][0] != 4294967295)
     {
-        unsigned int key = spatial_lookup_[i][0];
-        unsigned int pk = (i == 0) ? 4294967295 : spatial_lookup_[i - 1][0];
-        
-        if (key != pk)
+        start_indices_[spatial_lookup_[0][0]] = 0;
+    }
+#pragma omp parallel for
+    for (int i = 1; i < n; i++)
+    {
+        if (spatial_lookup_[i][0] != spatial_lookup_[i - 1][0])
         {
-            start_indices_[key] = i;
+            start_indices_[spatial_lookup_[i][0]] = i;
         }
     }
 }

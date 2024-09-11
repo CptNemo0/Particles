@@ -202,14 +202,6 @@ void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repos
 					repository.nx_[id] += displacement_2.x;
 					repository.ny_[id] += displacement_2.y;
 					repository.nz_[id] += displacement_2.z;
-
-					//repository.speedx_[id] *= 0.999f;
-					//repository.speedy_[id] *= 0.999f;
-					//repository.speedz_[id] *= 0.999f;
-					//repository.speedx_[idx] *= 0.999f;
-					//repository.speedy_[idx] *= 0.999f;
-					//repository.speedz_[idx] *= 0.999f;
-
 				}
 				i++;
 			}

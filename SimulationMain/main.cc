@@ -71,14 +71,16 @@ int main(int argv, const char** argc)
 
     SOARepository repository{ BALL_NUMBER, D3 };
     NormalMover mover{ &repository };
+    SIMDMover simd_mover{ &repository };
     SpatialHashGrid grid{ &repository };
     BallCollisions3d collisions;
-    WallCollisions3D walls{ -25.0f, 25.0f, -25.0f, 25.0f, -25.0f, 25.0f };
+    float a = 12.5f;
+    WallCollisions3D walls{ -a, a, -a, a, -a, a };
 
     Shader shader{ "..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag" };
     BallRenderer renderer{ &repository, &shader };
     renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 10000.00f));
-    renderer.UpdateViewMatrix({ 100.0f, 100.0f, 50.0f }, { 0.0f, 0.0f, 0.0f });
+    renderer.UpdateViewMatrix({ 32.5f, 32.5, 32.5 }, { 5.0f, 0.0f, 5.0f });
     
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 
@@ -91,15 +93,13 @@ int main(int argv, const char** argc)
         glClearColor(D255(14), D255(0), D255(71), D255(255));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
-        mover.UpdateVelocities();
-        mover.PredictPositions();
-        grid.UpdateGrid();
-        collisions.SeperateBalls(grid, repository);
-        walls.CollideWalls(repository);
-        mover.UpdatePositions();
-        renderer.Draw();
-        
+        mover.UpdateVelocities();                   // 25
+        simd_mover.PredictPositions();              // 11
+        grid.UpdateGrid();                          // 1417
+        collisions.SeperateBalls(grid, repository); // 29000
+        walls.CollideWalls(repository);             // 80
+        simd_mover.UpdatePositions();               // 250
+        renderer.Draw();                            // 24
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         
 #pragma region FPS

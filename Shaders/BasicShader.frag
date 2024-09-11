@@ -10,11 +10,30 @@ float noise(float p)
 }
 
 in float id;
+in vec3 normal;
+in vec3 world_pos;
 
 out vec4 out_color;
 
+vec3 light_position  = vec3(0.0, 5.0, 0.0);
+float light_intensity = 100.0f;
+vec3 camera_position = vec3(32.5f, 32.5, 32.5);
+
 void main()
 {
-	float c = noise(id);
-	out_color = vec4(c,c,c, 1.0);
+	vec3 light_direction = light_position - world_pos;
+	float magnitude = length(light_direction);
+	light_direction = normalize(light_direction);
+
+	float dp = dot(normal, light_direction);
+	vec3 color = vec3(1.0, 1.0, 1.0);
+	if(dp < 0)
+	{
+		color *= 0.0;
+	}
+	
+	float attenuation = 1.0 / (magnitude * magnitude);
+	color *= attenuation * light_intensity;
+
+	out_color = vec4(color, 1.0);
 }
