@@ -47,5 +47,5 @@ void main()
     vec3 a = vec3(0.0, 0.0, 0.0) - world_position.xyz;
     float l = length(a);
 
-    color = (346.0 - l) / 346.0 * vec3(1.0);
+    color = (20.0 - l) / 20.0 * vec3(1.0);
 }

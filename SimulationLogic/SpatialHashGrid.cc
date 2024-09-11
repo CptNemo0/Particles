@@ -3,20 +3,17 @@
 #include "pch.h"
 #include <algorithm>
 
-SpatialHashGrid::SpatialHashGrid()
+void SpatialHashGrid::UpdateGrid()
 {
-}
-
-void SpatialHashGrid::UpdateGrid(SOARepository& repository)
-{
-	int n = repository.size_;
+	int n = repository_->size_;
 
 #pragma omp parallel for
 	for (int i = 0; i < n; i++)
 	{
-        unsigned int cellx = static_cast<unsigned int>(repository.nx_[i] / INFLUENCE_RADIUS);
-        unsigned int celly = static_cast<unsigned int>(repository.ny_[i] / INFLUENCE_RADIUS);
-		unsigned int hash = hash2uints(cellx, celly);
+        unsigned int cellx = static_cast<unsigned int>(repository_->nx_[i] / repository_->radius_[i]);
+        unsigned int celly = static_cast<unsigned int>(repository_->ny_[i] / repository_->radius_[i]);
+        unsigned int cellz = static_cast<unsigned int>(repository_->nz_[i] / repository_->radius_[i]);
+		unsigned int hash = hash3uints(cellx, celly, cellz);
         unsigned int key = hash % n;
 		spatial_lookup_[i][0] = key;
 		spatial_lookup_[i][1] = i;

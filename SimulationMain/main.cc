@@ -19,6 +19,11 @@
 
 #include <omp.h>
 
+#ifndef D255(A)
+#define D255(A) (A / 255.0f)
+#endif // !D255(A)
+
+
 int main(int argv, const char** argc)
 {
 #pragma region Setup
@@ -64,15 +69,16 @@ int main(int argv, const char** argc)
     omp_set_dynamic(0);
 #pragma endregion
 
-    Shader shader("..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag");
-    NormalMover mover;
-    WallCollisions3D walls { -200.0f, 200.0f, -200.0f, 200.0f, -200.0f, 200.0f };
-    SpatialHashGrid grid;
+    SOARepository repository{ BALL_NUMBER, D3 };
+    NormalMover mover{ &repository };
+    SpatialHashGrid grid{ &repository };
     BallCollisions2d collisions;
-    SOARepository repository = SOARepository(BALL_NUMBER, D3);
+    WallCollisions3D walls{ -10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 10.0f };
+
+    Shader shader{ "..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag" };
     BallRenderer renderer{ &repository, &shader };
     renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 10000.00f));
-    renderer.UpdateViewMatrix({ 350.0f, 350.0f, 350.0f }, { 0.0f, 0.0f, 0.0f });
+    renderer.UpdateViewMatrix({ 20.0f, 20.0f, 20.0f }, { 0.0f, 0.0f, 0.0f });
     
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 
@@ -82,21 +88,22 @@ int main(int argv, const char** argc)
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.175f, 0.2525f, 0.27f, 1.0f);
+        glClearColor(D255(14), D255(0), D255(71), D255(255));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-        mover.UpdateVelocities(repository);
-        mover.PredictPositions(repository);
+        mover.UpdateVelocities();
+        mover.PredictPositions();
+        grid.UpdateGrid();
         walls.CollideWalls(repository);
-        mover.UpdatePositions(repository);
+        mover.UpdatePositions();
         renderer.Draw();
         
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         
 #pragma region FPS
         durations_.push_back(static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - begin).count()));
-        if (idx == 100)
+        if (idx == 1000)
         {
             auto sum = [](std::vector<double>& durations)
                 {
@@ -108,7 +115,7 @@ int main(int argv, const char** argc)
                     return return_value;
                 };
             auto result = sum(durations_);
-            result *= 0.01;
+            result *= 0.001;
             auto fps = 1000000.0 / result;
             std::cout << "fps: " << fps << std::endl;
 

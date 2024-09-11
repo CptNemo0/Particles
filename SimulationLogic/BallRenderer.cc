@@ -6,7 +6,7 @@ BallRenderer::BallRenderer(SOARepository* repository, Shader* shader)
 	shader_ = shader;
 	repository_ = repository;
 
-	LoadModel(model_, "C:\\Users\\pawel\\Desktop\\Programowanie\\RaylibFun\\Models\\ball.gltf");
+	LoadModel(model_, "..\\Models\\ball.gltf");
 	vao_and_ebo_ = BindModel(model_);
 
 	binding_point_ = 1;

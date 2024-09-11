@@ -30,9 +30,9 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 				output_position_[i * 3 + 1] = y_[i];
 				output_position_[i * 3 + 2] = z_[i];
 
-				speedx_[i] = static_cast<float>(rand() % 1000 - 1000) / 100.0f;
-				speedy_[i] = static_cast<float>(rand() % 1000 - 1000) / 100.0f;
-				speedz_[i] = 0.0f;
+				speedx_[i] = static_cast<float>(rand() % 1000 - 1000) / 5000.0f;
+				speedy_[i] = static_cast<float>(rand() % 1000 - 1000) / 5000.0f;
+				speedz_[i] = static_cast<float>(rand() % 1000 - 1000) / 5000.0f;
 
 				px_[i] = x_[i] - speedx_[i];
 				py_[i] = y_[i] - speedy_[i];
