@@ -136,4 +136,83 @@ void BallCollisions3d::SeperateBalls(SOARepository& repository)
 
 void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repository)
 {
+	for (int id = 0; id < static_cast<int>(repository.size_); id++)
+	{
+		float& x = repository.nx_[id];
+		float& y = repository.ny_[id];
+		float& z = repository.nz_[id];
+
+		int cellx = static_cast<int>(x / CELL_SIZE);
+		int celly = static_cast<int>(y / CELL_SIZE);
+		int cellz = static_cast<int>(z / CELL_SIZE);
+
+		float radius_squared = repository.radius_[id] * repository.radius_[id];
+		float radius2 = repository.radius_[id] * 2.0f;
+
+		for (const auto& [offsetx, offsety, offsetz] : offsets_3d)
+		{
+			unsigned int key = hash3uints(cellx + offsetx, celly + offsety, cellz + offsetz) % repository.size_;
+			unsigned int start = grid.start_indices_[key];
+
+			unsigned int i = 0;
+			while (true)
+			{
+				if (start + i >= repository.size_ || grid.spatial_lookup_[start + i][0] != key)
+				{
+					break;
+				}
+
+				unsigned int idx = grid.spatial_lookup_[start + i][1];
+
+				if (idx == id)
+				{
+					i++;
+					continue;
+				}
+
+				float distance2 = (repository.nx_[idx] - x) * (repository.nx_[idx] - x) + (repository.ny_[idx] - y) * (repository.ny_[idx] - y) + (repository.nz_[idx] - z) * (repository.nz_[idx] - z);
+
+				float min_distance = repository.radius_[idx] + repository.radius_[id];
+
+				if (distance2 < (min_distance * min_distance))
+				{
+					if (distance2 < 0.0000001f)
+					{
+						distance2 = 0.00001f;
+					}
+
+					float distance = sqrtf(distance2);
+
+					glm::vec3 particleA(x, y, z);
+					glm::vec3 particleB(repository.nx_[idx], repository.ny_[idx], repository.nz_[idx]);
+
+					glm::vec3 dir = glm::normalize(particleA - particleB);
+					float overlap = min_distance - distance;
+
+					float move_factor_1 = repository.radius_[idx] / min_distance;
+					float move_factor_2 = repository.radius_[id] / min_distance;
+
+					glm::vec3 displacement_1 = dir * overlap * move_factor_1;
+					glm::vec3 displacement_2 = dir * overlap * move_factor_2;
+
+					repository.nx_[idx] -= displacement_1.x;
+					repository.ny_[idx] -= displacement_1.y;
+					repository.nz_[idx] -= displacement_1.z;
+
+					repository.nx_[id] += displacement_2.x;
+					repository.ny_[id] += displacement_2.y;
+					repository.nz_[id] += displacement_2.z;
+
+					//repository.speedx_[id] *= 0.999f;
+					//repository.speedy_[id] *= 0.999f;
+					//repository.speedz_[id] *= 0.999f;
+					//repository.speedx_[idx] *= 0.999f;
+					//repository.speedy_[idx] *= 0.999f;
+					//repository.speedz_[idx] *= 0.999f;
+
+				}
+				i++;
+			}
+		}
+	}
 }

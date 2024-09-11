@@ -58,7 +58,7 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 		{
 			int cube_root = static_cast<int>(cbrt(BALL_NUMBER));
 
-			float offset = 0.5f;
+			float offset = 0.1f;
 
 			float spacex = (RADIUS * 2.0f + offset);
 			float spacey = (RADIUS * 2.0f + offset);
@@ -95,9 +95,9 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 					}
 				}
 
-				speedx_[i] = static_cast<float>((rand() % 2000) - 1000) / 1000.0f;
-				speedy_[i] = static_cast<float>((rand() % 2000) - 1000) / 1000.0f;
-				speedz_[i] = static_cast<float>((rand() % 2000) - 1000) / 1000.0f;
+				speedx_[i] = static_cast<float>((rand() % 2000) - 1000) / 100.0f;
+				speedy_[i] = static_cast<float>((rand() % 2000) - 1000) / 100.0f;
+				speedz_[i] = static_cast<float>((rand() % 2000) - 1000) / 100.0f;
 
 				px_[i] = x_[i] - speedx_[i];
 				py_[i] = y_[i] - speedy_[i];

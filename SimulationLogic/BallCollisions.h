@@ -80,6 +80,7 @@ public:
 
 class BallCollisions3d : public BallCollisions
 {
+public:
 	BallCollisions3d() = default;
 	
 	void SeperateBalls(SOARepository& repository) override;

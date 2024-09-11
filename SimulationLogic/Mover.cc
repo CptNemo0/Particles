@@ -18,7 +18,7 @@ void NormalMover::UpdateVelocities()
     for (int i = 0; i < n; i++)
     {
         repository_->speedx_[i] += FIXED_DT * repository_->forcex_[i];
-        repository_->speedy_[i] += FIXED_DT * repository_->forcey_[i];
+        repository_->speedy_[i] += FIXED_DT * -100.0f;
         repository_->speedz_[i] += FIXED_DT * repository_->forcez_[i];
     }
 

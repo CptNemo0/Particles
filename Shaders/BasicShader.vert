@@ -10,7 +10,7 @@ layout(std430, binding = 1) buffer position_buffer
     float data[];
 };
 
-out vec3 color;
+out float id;
 
 mat4 ScaleMatrix(vec3 scale) 
 {
@@ -47,5 +47,5 @@ void main()
     vec3 a = vec3(0.0, 0.0, 0.0) - world_position.xyz;
     float l = length(a);
 
-    color = (80.0 - l) / 80.0 * vec3(1.0);
+    id = float(gl_InstanceID);
 }

@@ -72,13 +72,13 @@ int main(int argv, const char** argc)
     SOARepository repository{ BALL_NUMBER, D3 };
     NormalMover mover{ &repository };
     SpatialHashGrid grid{ &repository };
-    BallCollisions2d collisions;
-    WallCollisions3D walls{ -45.0f, 45.0f, -45.0f, 45.0f, -45.0f, 45.0f };
+    BallCollisions3d collisions;
+    WallCollisions3D walls{ -25.0f, 25.0f, -25.0f, 25.0f, -25.0f, 25.0f };
 
     Shader shader{ "..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag" };
     BallRenderer renderer{ &repository, &shader };
     renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 10000.00f));
-    renderer.UpdateViewMatrix({ 300.0f, 200.0f, 100.0f }, { 0.0f, 0.0f, 0.0f });
+    renderer.UpdateViewMatrix({ 100.0f, 100.0f, 50.0f }, { 0.0f, 0.0f, 0.0f });
     
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 
@@ -95,6 +95,7 @@ int main(int argv, const char** argc)
         mover.UpdateVelocities();
         mover.PredictPositions();
         grid.UpdateGrid();
+        collisions.SeperateBalls(grid, repository);
         walls.CollideWalls(repository);
         mover.UpdatePositions();
         renderer.Draw();
@@ -103,7 +104,7 @@ int main(int argv, const char** argc)
         
 #pragma region FPS
         durations_.push_back(static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - begin).count()));
-        if (idx == 1000)
+        if (idx == 100)
         {
             auto sum = [](std::vector<double>& durations)
                 {
@@ -115,7 +116,7 @@ int main(int argv, const char** argc)
                     return return_value;
                 };
             auto result = sum(durations_);
-            result *= 0.001;
+            result *= 0.01;
             auto fps = 1000000.0 / result;
             std::cout << "fps: " << fps << std::endl;
 
