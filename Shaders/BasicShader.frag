@@ -12,6 +12,7 @@ float noise(float p)
 in float id;
 in vec3 normal;
 in vec3 world_pos;
+in vec3 view_pos;
 
 out vec4 out_color;
 
@@ -35,5 +36,5 @@ void main()
 	float attenuation = 1.0 / (magnitude * magnitude);
 	color *= attenuation * light_intensity;
 
-	out_color = vec4(color, 1.0);
+	out_color = vec4(normal, 1.0);
 }

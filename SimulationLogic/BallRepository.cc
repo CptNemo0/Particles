@@ -58,7 +58,7 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 		{
 			int cube_root = static_cast<int>(cbrt(BALL_NUMBER));
 
-			float offset = 0.1f;
+			float offset = 0.2f;
 
 			float spacex = (RADIUS * 2.0f + offset);
 			float spacey = (RADIUS * 2.0f + offset);

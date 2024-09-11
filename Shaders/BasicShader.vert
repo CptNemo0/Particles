@@ -13,6 +13,7 @@ layout(std430, binding = 1) buffer position_buffer
 
 out float id;
 out vec3 world_pos;
+out vec3 view_pos;
 out vec3 normal;
 
 mat4 ScaleMatrix(vec3 scale) 
@@ -44,8 +45,8 @@ void main()
     mat4 model_matrix = translation * scale;
 
     vec4 world_position = model_matrix * vec4(iv_position, 1.0);
-    
-	gl_Position = projection_matrix * view_matrix * model_matrix * world_position;
+    vec4 view_position = view_matrix * world_position;
+	gl_Position = projection_matrix *  view_position;
 
     vec3 a = vec3(0.0, 0.0, 0.0) - world_position.xyz;
     float l = length(a);
@@ -53,4 +54,5 @@ void main()
     id = float(gl_InstanceID);
     normal = mat3(transpose(inverse(model_matrix))) * iv_normal; 
     world_pos = world_position.xyz;
+    view_pos = view_position.xyz;
 }
