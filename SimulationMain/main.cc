@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 
+#include "../SimulationLogic/BallRenderer.h"
 #include "../SimulationLogic/BallRepository.h"
 #include "../SimulationLogic/BallCollisions.h"
 #include "../SimulationLogic/Mover.h"
@@ -17,29 +18,6 @@
 #include "../SimulationLogic/glad.h"
 
 #include <omp.h>
-
-
-glm::mat4 ViewMatrix(glm::vec3 cameraPos) {
-    glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
-
-    glm::vec3 forward = glm::normalize(cameraPos - camera_target);
-    glm::vec3 right = glm::normalize(cross(up, forward));
-    glm::vec3 camera_up = glm::cross(forward, right);
-
-    glm::mat4 view = glm::mat4
-    (
-        glm::vec4(right, 0.0),
-        glm::vec4(camera_up, 0.0),
-        glm::vec4(forward, 0.0),
-        glm::vec4(0.0, 0.0, 0.0, 1.0)
-    );
-
-    view = transpose(view);
-    view[3] = glm::vec4(-glm::dot(right, cameraPos), -glm::dot(camera_up, cameraPos), -glm::dot(forward, cameraPos), 1.0);
-
-    return view;
-}
 
 int main(int argv, const char** argc)
 {
@@ -87,29 +65,14 @@ int main(int argv, const char** argc)
 #pragma endregion
 
     Shader shader("..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag");
-    tinygltf::Model model_;
-    LoadModel(model_, "..\\Models\\ball.gltf");
-    auto vaoAndEbos = BindModel(model_);
-
-    glm::mat4 view_matrix = ViewMatrix({ 450.0f, 350.0f, 250.0f });
-    glm::mat4 projection_matrix = glm::perspective(90.0f, 1600.0f/900.0f, 0.01f, 10000.00f);
-
-    shader.Use();
-    shader.SetMatrix4("view_matrix", view_matrix);
-    shader.SetMatrix4("projection_matrix", projection_matrix);
-
     NormalMover mover;
-    WallCollisions3D walls{ -200.0f, 200.0f, -200.0f, 200.0f, -200.0f, 200.0f };
+    WallCollisions3D walls { -200.0f, 200.0f, -200.0f, 200.0f, -200.0f, 200.0f };
     SpatialHashGrid grid;
     BallCollisions2d collisions;
     SOARepository repository = SOARepository(BALL_NUMBER, D3);
-
-    unsigned int position_ssbo;
-    unsigned int binding_point = 1;
-    glGenBuffers(1, &position_ssbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, position_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * BALL_NUMBER * 3, static_cast<const void*>(&repository.output_position_), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, position_ssbo);
+    BallRenderer renderer{ &repository, &shader };
+    renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 10000.00f));
+    renderer.UpdateViewMatrix({ 350.0f, 350.0f, 350.0f }, { 0.0f, 0.0f, 0.0f });
     
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 
@@ -127,12 +90,8 @@ int main(int argv, const char** argc)
         mover.PredictPositions(repository);
         walls.CollideWalls(repository);
         mover.UpdatePositions(repository);
-
-        shader.Use();
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, position_ssbo);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * BALL_NUMBER * 3, static_cast<const void*>(&repository.output_position_));
-
-        InstanceModel(vaoAndEbos, model_, BALL_NUMBER);
+        renderer.Draw();
+        
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         
 #pragma region FPS
@@ -151,7 +110,7 @@ int main(int argv, const char** argc)
             auto result = sum(durations_);
             result *= 0.01;
             auto fps = 1000000.0 / result;
-            //std::cout << "fps: " << fps << std::endl;
+            std::cout << "fps: " << fps << std::endl;
 
             idx = 0;
             durations_.clear();

@@ -215,6 +215,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BallCollisions.h" />
+    <ClInclude Include="BallRenderer.h" />
     <ClInclude Include="BallRepository.h" />
     <ClInclude Include="glad.h" />
     <ClInclude Include="gltf_load.h" />
@@ -230,6 +231,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BallCollisions.cc" />
+    <ClCompile Include="BallRenderer.cc" />
     <ClCompile Include="BallRepository.cc" />
     <ClCompile Include="glad.cc" />
     <ClCompile Include="Shader.cc" />

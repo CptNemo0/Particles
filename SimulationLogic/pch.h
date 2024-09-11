@@ -19,5 +19,6 @@
 #include "glad.h"
 #include "Shader.h"
 #include "gltf_load.h"
+#include "BallRenderer.h"
 
 #endif //PCH_H
