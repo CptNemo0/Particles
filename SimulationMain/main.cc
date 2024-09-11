@@ -73,12 +73,12 @@ int main(int argv, const char** argc)
     NormalMover mover{ &repository };
     SpatialHashGrid grid{ &repository };
     BallCollisions2d collisions;
-    WallCollisions3D walls{ -10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 10.0f };
+    WallCollisions3D walls{ -45.0f, 45.0f, -45.0f, 45.0f, -45.0f, 45.0f };
 
     Shader shader{ "..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag" };
     BallRenderer renderer{ &repository, &shader };
     renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 10000.00f));
-    renderer.UpdateViewMatrix({ 20.0f, 20.0f, 20.0f }, { 0.0f, 0.0f, 0.0f });
+    renderer.UpdateViewMatrix({ 300.0f, 200.0f, 100.0f }, { 0.0f, 0.0f, 0.0f });
     
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 

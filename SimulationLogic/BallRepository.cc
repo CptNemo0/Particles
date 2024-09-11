@@ -30,9 +30,9 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 				output_position_[i * 3 + 1] = y_[i];
 				output_position_[i * 3 + 2] = z_[i];
 
-				speedx_[i] = static_cast<float>(rand() % 1000 - 1000) / 5000.0f;
-				speedy_[i] = static_cast<float>(rand() % 1000 - 1000) / 5000.0f;
-				speedz_[i] = static_cast<float>(rand() % 1000 - 1000) / 5000.0f;
+				speedx_[i] = static_cast<float>(rand() % 1000 - 1000) / 100.0f;
+				speedy_[i] = static_cast<float>(rand() % 1000 - 1000) / 100.0f;
+				speedz_[i] = 0.0f;
 
 				px_[i] = x_[i] - speedx_[i];
 				py_[i] = y_[i] - speedy_[i];
@@ -58,7 +58,7 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 		{
 			int cube_root = static_cast<int>(cbrt(BALL_NUMBER));
 
-			float offset = 1.0f;
+			float offset = 0.5f;
 
 			float spacex = (RADIUS * 2.0f + offset);
 			float spacey = (RADIUS * 2.0f + offset);
@@ -77,31 +77,27 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 				id_[i] = i;
 
 				x_[i] = startingx + (x_index % cube_root) * spacex;
-				y_[i] = startingy + (y_index % cube_root) * spacey;
+				y_[i] = startingy + y_index * spacey;
 				z_[i] = startingz + (z_index % cube_root) * spacez;
 				output_position_[i * 3 + 0] = x_[i];
 				output_position_[i * 3 + 1] = y_[i];
 				output_position_[i * 3 + 2] = z_[i];
 				
-				if (x_index < cube_root - 1)
-				{
-					x_index++;
-				}
-				else
-				{
-					x_index = 0;
-					y_index++;
-				}
+				x_index++;
 
-				if (y_index == cube_root)
+				if ((x_index % cube_root) == 0)
 				{
-					y_index = 0;
 					z_index++;
+
+					if (z_index % cube_root == 0)
+					{
+						y_index++;
+					}
 				}
 
-				speedx_[i] = static_cast<float>((rand() % 2000) - 1000) / 500.0f;
-				speedy_[i] = static_cast<float>((rand() % 2000) - 1000) / 500.0f;
-				speedz_[i] = static_cast<float>((rand() % 2000) - 1000) / 500.0f;
+				speedx_[i] = static_cast<float>((rand() % 2000) - 1000) / 1000.0f;
+				speedy_[i] = static_cast<float>((rand() % 2000) - 1000) / 1000.0f;
+				speedz_[i] = static_cast<float>((rand() % 2000) - 1000) / 1000.0f;
 
 				px_[i] = x_[i] - speedx_[i];
 				py_[i] = y_[i] - speedy_[i];

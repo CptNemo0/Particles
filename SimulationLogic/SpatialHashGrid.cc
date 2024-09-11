@@ -10,9 +10,9 @@ void SpatialHashGrid::UpdateGrid()
 #pragma omp parallel for
 	for (int i = 0; i < n; i++)
 	{
-        unsigned int cellx = static_cast<unsigned int>(repository_->nx_[i] / repository_->radius_[i]);
-        unsigned int celly = static_cast<unsigned int>(repository_->ny_[i] / repository_->radius_[i]);
-        unsigned int cellz = static_cast<unsigned int>(repository_->nz_[i] / repository_->radius_[i]);
+        unsigned int cellx = static_cast<unsigned int>(repository_->nx_[i] / CELL_SIZE);
+        unsigned int celly = static_cast<unsigned int>(repository_->ny_[i] / CELL_SIZE);
+        unsigned int cellz = static_cast<unsigned int>(repository_->nz_[i] / CELL_SIZE);
 		unsigned int hash = hash3uints(cellx, celly, cellz);
         unsigned int key = hash % n;
 		spatial_lookup_[i][0] = key;
