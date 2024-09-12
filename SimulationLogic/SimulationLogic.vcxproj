@@ -217,6 +217,7 @@
     <ClInclude Include="BallCollisions.h" />
     <ClInclude Include="BallRenderer.h" />
     <ClInclude Include="BallRepository.h" />
+    <ClInclude Include="ForceGenerator.h" />
     <ClInclude Include="glad.h" />
     <ClInclude Include="gltf_load.h" />
     <ClInclude Include="khrplatform.h" />
@@ -233,6 +234,7 @@
     <ClCompile Include="BallCollisions.cc" />
     <ClCompile Include="BallRenderer.cc" />
     <ClCompile Include="BallRepository.cc" />
+    <ClCompile Include="ForceGenerator.cc" />
     <ClCompile Include="glad.cc" />
     <ClCompile Include="Shader.cc" />
     <ClCompile Include="SpatialHashGrid.cc" />

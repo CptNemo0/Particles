@@ -18,7 +18,7 @@ void NormalMover::UpdateVelocities()
     for (int i = 0; i < n; i++)
     {
         repository_->speedx_[i] += (1.0f  /240.0f) * repository_->forcex_[i] * repository_->inv_mass[i];
-        repository_->speedy_[i] += (1.0f / 240.0f) * (-100.0f) * repository_->inv_mass[i];
+        repository_->speedy_[i] += (1.0f / 240.0f) * repository_->forcey_[i] * repository_->inv_mass[i];
         repository_->speedz_[i] += (1.0f / 240.0f) * repository_->forcez_[i] * repository_->inv_mass[i];
     }
 

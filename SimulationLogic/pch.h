@@ -20,5 +20,6 @@
 #include "Shader.h"
 #include "gltf_load.h"
 #include "BallRenderer.h"
+#include "ForceGenerator.h"
 
 #endif //PCH_H

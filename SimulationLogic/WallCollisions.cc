@@ -10,17 +10,17 @@ void WallCollisions2D::Init()
 
 }
 
-void WallCollisions2D::CollideWalls(SOARepository& repository)
+void WallCollisions2D::CollideWalls()
 {
-	int n = static_cast<int>(repository.size_);
+	int n = static_cast<int>(repository_->size_);
 
 	for (int i = 0; i < n; i++)
 	{
-		float& nx = repository.nx_[i];
-		float& ny = repository.ny_[i];
-		float& speedx = repository.speedx_[i];
-		float& speedy = repository.speedy_[i];
-		float& radius = repository.radius_[i];
+		float& nx = repository_->nx_[i];
+		float& ny = repository_->ny_[i];
+		float& speedx = repository_->speedx_[i];
+		float& speedy = repository_->speedy_[i];
+		float& radius = repository_->radius_[i];
 		
 		const float RIGHT_MRADIUS = right_ - radius * 2.0f;
 		const float DOWN_MRADIUS  = down_  - radius * 2.0f;
@@ -32,39 +32,39 @@ void WallCollisions2D::CollideWalls(SOARepository& repository)
 		distance = nx - LEFT_ARADIUS;
 		distance = std::min(0.0f, distance);
 		distance = fabsf(distance);
-		repository.nx_[i] += distance;
+		repository_->nx_[i] += distance;
 
 		if (distance > 0)
 		{
-			repository.speedx_[i] *= -0.9f;
+			repository_->speedx_[i] *= -0.9f;
 		}
 
 		distance = ny - TOP_ARADIUS;
 		distance = std::min(0.0f, distance);
 		distance = fabsf(distance);
-		repository.ny_[i] += distance;
+		repository_->ny_[i] += distance;
 		
 		if (distance > 0)
 		{
-			repository.speedy_[i] *= -0.9f;
+			repository_->speedy_[i] *= -0.9f;
 		}
 		
 		distance = RIGHT_MRADIUS - nx;
 		distance = std::min(0.0f, distance);
-		repository.nx_[i] += distance;
+		repository_->nx_[i] += distance;
 		
 		if (distance < 0)
 		{
-			repository.speedx_[i] *= -0.9f;
+			repository_->speedx_[i] *= -0.9f;
 		}
 		
 		distance = DOWN_MRADIUS - ny;
 		distance = std::min(0.0f, distance);
-		repository.ny_[i] += distance;
+		repository_->ny_[i] += distance;
 		
 		if (distance < 0)
 		{
-			repository.speedy_[i] *= -0.9f;
+			repository_->speedy_[i] *= -0.9f;
 		}
 	}
 }
@@ -73,22 +73,22 @@ void WallCollisions3D::Init()
 {
 }
 
-void WallCollisions3D::CollideWalls(SOARepository& repository)
+void WallCollisions3D::CollideWalls()
 {
-	int n = static_cast<int>(repository.size_);
+	int n = static_cast<int>(repository_->size_);
 
 	for (int i = 0; i < n; i++)
 	{
-		float& x = repository.x_[i];
-		float& y = repository.y_[i];
-		float& z = repository.z_[i];
-		float& nx = repository.nx_[i];
-		float& ny = repository.ny_[i];
-		float& nz = repository.nz_[i];
-		float& speedx = repository.speedx_[i];
-		float& speedy = repository.speedy_[i];
-		float& speedz = repository.speedz_[i];
-		float& radius = repository.radius_[i];
+		float& x = repository_->x_[i];
+		float& y = repository_->y_[i];
+		float& z = repository_->z_[i];
+		float& nx = repository_->nx_[i];
+		float& ny = repository_->ny_[i];
+		float& nz = repository_->nz_[i];
+		float& speedx = repository_->speedx_[i];
+		float& speedy = repository_->speedy_[i];
+		float& speedz = repository_->speedz_[i];
+		float& radius = repository_->radius_[i];
 
 		const float RIGHT_MRADIUS = right_ - radius;
 		const float DOWN_MRADIUS  = down_  - radius;

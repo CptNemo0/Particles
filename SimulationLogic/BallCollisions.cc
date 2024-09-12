@@ -170,7 +170,11 @@ void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repos
 					continue;
 				}
 
-				float distance2 = (repository.nx_[idx] - x) * (repository.nx_[idx] - x) + (repository.ny_[idx] - y) * (repository.ny_[idx] - y) + (repository.nz_[idx] - z) * (repository.nz_[idx] - z);
+				float& ox = repository.nx_[idx];
+				float& oy = repository.ny_[idx];
+				float& oz = repository.nz_[idx];
+
+				float distance2 = (ox - x) * (ox - x) + (oy - y) * (oy - y) + (oz - z) * (oz - z);
 
 				float min_distance = repository.radius_[idx] + repository.radius_[id];
 
@@ -184,7 +188,7 @@ void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repos
 					float distance = sqrtf(distance2);
 
 					glm::vec3 particleA(x, y, z);
-					glm::vec3 particleB(repository.nx_[idx], repository.ny_[idx], repository.nz_[idx]);
+					glm::vec3 particleB(ox, oy, oz);
 
 					glm::vec3 dir = glm::normalize(particleA - particleB);
 					float overlap = min_distance - distance;
@@ -195,13 +199,13 @@ void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repos
 					glm::vec3 displacement_1 = dir * overlap * move_factor_1;
 					glm::vec3 displacement_2 = dir * overlap * move_factor_2;
 
-					repository.nx_[idx] -= displacement_1.x;
-					repository.ny_[idx] -= displacement_1.y;
-					repository.nz_[idx] -= displacement_1.z;
+					ox -= displacement_1.x;
+					oy -= displacement_1.y;
+					oz -= displacement_1.z;
 
-					repository.nx_[id] += displacement_2.x;
-					repository.ny_[id] += displacement_2.y;
-					repository.nz_[id] += displacement_2.z;
+					x += displacement_2.x;
+					y += displacement_2.y;
+					z += displacement_2.z;
 				}
 				i++;
 			}

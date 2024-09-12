@@ -17,7 +17,7 @@ in vec3 view_pos;
 out vec4 out_color;
 
 vec3 light_position  = vec3(0.0, 5.0, 0.0);
-float light_intensity = 100.0f;
+float light_intensity = 200.0f;
 vec3 camera_position = vec3(32.5f, 32.5, 32.5);
 
 void main()
@@ -36,5 +36,5 @@ void main()
 	float attenuation = 1.0 / (magnitude * magnitude);
 	color *= attenuation * light_intensity;
 
-	out_color = vec4(normal, 1.0);
+	out_color = vec4(color, 1.0);
 }
