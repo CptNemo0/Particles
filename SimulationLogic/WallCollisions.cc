@@ -104,14 +104,14 @@ void WallCollisions3D::CollideWalls()
 			auto dx = x - nx;
 			auto offset = LEFT_ARADIUS - nx;
 			nx += offset;
-			x = (nx - dx) * COR;
+			//x = (nx - dx) * COR;
 		}
 		else if (nx >= RIGHT_MRADIUS)
 		{
 			auto dx = nx -x;
 			auto offset = nx - RIGHT_MRADIUS;
 			nx -= offset;
-			x = (nx + dx) * COR;
+			//x = (nx + dx) * COR;
 		}
 
 		if (ny <= TOP_ARADIUS)
@@ -119,14 +119,14 @@ void WallCollisions3D::CollideWalls()
 			auto dy = y - ny;
 			auto offset = TOP_ARADIUS - ny;
 			ny += offset;
-			y = (ny - dy) * COR;
+			//y = (ny - dy) * COR;
 		}
 		else if (ny >= DOWN_MRADIUS)
 		{
 			auto dy = ny - y;
 			auto offset = ny - DOWN_MRADIUS;
 			ny -= offset;
-			y = (ny + dy) * COR;
+			//y = (ny + dy) * COR;
 		}
 
 		if (nz <= FAR_ARADIUS)
@@ -134,14 +134,14 @@ void WallCollisions3D::CollideWalls()
 			auto dz = z - nz;
 			auto offset = FAR_ARADIUS - nz;
 			nz += offset;
-			z = (nz - dz) * COR;
+			//z = (nz - dz) * COR;
 		}
 		else if (nz >= NEAR_MRADIUS)
 		{
 			auto dz = nz - z;
 			auto offset = nz - NEAR_MRADIUS;
 			nz -= offset;
-			z = (nz + dz) * COR;
+			//z = (nz + dz) * COR;
 		}
 	}
 }

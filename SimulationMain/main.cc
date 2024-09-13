@@ -12,6 +12,7 @@
 #include "../SimulationLogic/Shader.h"
 #include "../SimulationLogic/WallCollisions.h"
 #include "../SimulationLogic/ForceGenerator.h"
+#include "../SimulationLogic/IncompressibilityConstraint.h"
 
 #include "../SimulationLogic/gltf_load.h"
 #include "GLFW/glfw3.h"
@@ -24,7 +25,7 @@
 #define D255(A) (A / 255.0f)
 #endif // !D255(A)
 
-float cube_side = 25.0f;
+float cube_side = 25.5f;
 
 int main(int argv, const char** argc)
 {
@@ -75,11 +76,11 @@ int main(int argv, const char** argc)
     NormalMover mover{ &repository };
     SIMDMover simd_mover{ &repository };
     ForceGenerator generator{ &repository };
-    generator.AddForce(glm::vec3(0.0f, -100.0f, 0.0f));
+    generator.AddForce(glm::vec3(0.0f, -7.0f, 0.0f));
     SpatialHashGrid grid{ &repository };
     BallCollisions3d collisions;
     WallCollisions3D walls{ -cube_side, cube_side, -cube_side , cube_side, -cube_side, cube_side, &repository};
-
+    IncompressibilityConstraint constraint{ &repository, &grid };
     Shader shader{ "..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag" };
     BallRenderer renderer{ &repository, &shader };
     renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 1000.00f));
@@ -95,19 +96,31 @@ int main(int argv, const char** argc)
         glfwPollEvents();
         glClearColor(D255(14), D255(0), D255(71), D255(255));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
         generator.ApplyForces();
-        mover.UpdateVelocities();                   // 25
-        simd_mover.PredictPositions();              // 11
-        grid.UpdateGrid();                          // 1417
-        collisions.SeperateBalls(grid, repository); // 29000
-        walls.CollideWalls();                       // 80
-        simd_mover.UpdatePositions();               // 250
+        mover.UpdateVelocities();                   
+        simd_mover.PredictPositions();
+        grid.UpdateGrid();
+        grid.UpdateNeighbors();
+        for (int i = 0; i < 3; i++)
+        {
+            constraint.CalculateLagrangeMultiplier();
+            constraint.CalculatePositionCorrections();
+            constraint.ApplyPositionCorrection();
+        }
+        walls.CollideWalls();          
+        mover.AdjustVelocities();
+        constraint.CalculateNewVelocities();
+        constraint.ApplyNewVelocities();
+        simd_mover.UpdatePositions();               
         generator.ZeroForces();
-        renderer.Draw();                            // 24
+        renderer.Draw();                            
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         
-#pragma region FPS
+#pragma region Log fps
         durations_.push_back(static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - begin).count()));
         if (idx == 100)
         {

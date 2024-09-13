@@ -36,6 +36,46 @@ void SpatialHashGrid::UpdateGrid()
     }
 }
 
+void SpatialHashGrid::UpdateNeighbors()
+{
+	for (int id = 0; id < static_cast<int>(repository_->size_); id++)
+	{
+		neighbors_[id].clear();
+
+		float& x = repository_->nx_[id];
+		float& y = repository_->ny_[id];
+		float& z = repository_->nz_[id];
+
+		int cellx = static_cast<int>(x / CELL_SIZE);
+		int celly = static_cast<int>(y / CELL_SIZE);
+		int cellz = static_cast<int>(z / CELL_SIZE);
+
+		for (const auto& [offsetx, offsety, offsetz] : offsets_3d)
+		{
+			unsigned int key = hash3uints(cellx + offsetx, celly + offsety, cellz + offsetz) % repository_->size_;
+			unsigned int start = start_indices_[key];
+
+			unsigned int i = 0;
+			while (true)
+			{
+				if (start + i >= repository_->size_ || spatial_lookup_[start + i][0] != key)
+				{
+					break;
+				}
+
+				unsigned int idx = spatial_lookup_[start + i][1];
+
+				if (idx != id)
+				{
+					neighbors_[id].push_back(idx);
+				}
+
+				i++;
+			}
+		}
+	}
+}
+
 int SpatialHashGrid::Partition(unsigned int arr[][2], int low, int high)
 {
 

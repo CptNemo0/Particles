@@ -220,6 +220,7 @@
     <ClInclude Include="ForceGenerator.h" />
     <ClInclude Include="glad.h" />
     <ClInclude Include="gltf_load.h" />
+    <ClInclude Include="IncompressibilityConstraint.h" />
     <ClInclude Include="khrplatform.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpatialHashGrid.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="BallRepository.cc" />
     <ClCompile Include="ForceGenerator.cc" />
     <ClCompile Include="glad.cc" />
+    <ClCompile Include="IncompressibilityConstraint.cc" />
     <ClCompile Include="Shader.cc" />
     <ClCompile Include="SpatialHashGrid.cc" />
     <ClCompile Include="Mover.cc" />

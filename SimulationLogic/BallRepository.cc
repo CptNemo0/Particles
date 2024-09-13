@@ -46,8 +46,8 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 				forcey_[i] = 0.0f;
 				forcez_[i] = 0.0f;
 
-				mass[i] = 1.0f;
-				inv_mass[i] = 1.0f;
+				mass_[i] = 1.0f;
+				inv_mass_[i] = 1.0f;
 
 				radius_[i] = RADIUS;
 			}
@@ -95,9 +95,9 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 					}
 				}
 
-				speedx_[i] = static_cast<float>((rand() % 2000) - 1000) / 500.0f;
-				speedy_[i] = static_cast<float>((rand() % 2000) - 1000) / 500.0f;
-				speedz_[i] = static_cast<float>((rand() % 2000) - 1000) / 500.0f;
+				speedx_[i] = static_cast<float>((rand() % 2000) ) / 100.0f;
+				speedy_[i] = static_cast<float>((rand() % 2000) - 1000) / 700.0f;
+				speedz_[i] = static_cast<float>((rand() % 2000) - 1000) / 700.0f;
 
 				px_[i] = x_[i] - speedx_[i];
 				py_[i] = y_[i] - speedy_[i];
@@ -111,8 +111,8 @@ SOARepository::SOARepository(const unsigned int size, const DIMENSIONS dim)
 				forcey_[i] = 0.0f;
 				forcez_[i] = 0.0f;
 
-				mass[i] = 1.0f;
-				inv_mass[i] = 1.0f;
+				mass_[i] = 1.0f;
+				inv_mass_[i] = 1.0f;
 
 				radius_[i] = RADIUS;
 			}

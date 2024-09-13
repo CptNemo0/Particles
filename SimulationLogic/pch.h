@@ -21,5 +21,6 @@
 #include "gltf_load.h"
 #include "BallRenderer.h"
 #include "ForceGenerator.h"
+#include "IncompressibilityConstraint.h"
 
 #endif //PCH_H

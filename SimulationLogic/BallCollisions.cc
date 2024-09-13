@@ -142,6 +142,54 @@ void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repos
 		float& y = repository.ny_[id];
 		float& z = repository.nz_[id];
 
+		for (const auto& idx : grid.neighbors_[id])
+		{
+			float& ox = repository.nx_[idx];
+			float& oy = repository.ny_[idx];
+			float& oz = repository.nz_[idx];
+
+			float distance2 = (ox - x) * (ox - x) + (oy - y) * (oy - y) + (oz - z) * (oz - z);
+
+			float min_distance = repository.radius_[idx] + repository.radius_[id];
+
+			if (distance2 < (min_distance * min_distance))
+			{
+				if (distance2 < 0.0000001f)
+				{
+					distance2 = 0.00001f;
+				}
+
+				float distance = sqrtf(distance2);
+
+				glm::vec3 particleA(x, y, z);
+				glm::vec3 particleB(ox, oy, oz);
+
+				glm::vec3 dir = glm::normalize(particleA - particleB);
+				float overlap = min_distance - distance;
+
+				float move_factor_1 = repository.radius_[idx] / min_distance;
+				float move_factor_2 = repository.radius_[id] / min_distance;
+
+				glm::vec3 displacement_1 = dir * overlap * move_factor_1;
+				glm::vec3 displacement_2 = dir * overlap * move_factor_2;
+
+				ox -= displacement_1.x;
+				oy -= displacement_1.y;
+				oz -= displacement_1.z;
+
+				x += displacement_2.x;
+				y += displacement_2.y;
+				z += displacement_2.z;
+			}
+		}
+	}
+	/*
+	for (int id = 0; id < static_cast<int>(repository.size_); id++)
+	{
+		float& x = repository.nx_[id];
+		float& y = repository.ny_[id];
+		float& z = repository.nz_[id];
+
 		int cellx = static_cast<int>(x / CELL_SIZE);
 		int celly = static_cast<int>(y / CELL_SIZE);
 		int cellz = static_cast<int>(z / CELL_SIZE);
@@ -210,5 +258,5 @@ void BallCollisions3d::SeperateBalls(SpatialHashGrid& grid, SOARepository& repos
 				i++;
 			}
 		}
-	}
+	}*/
 }
