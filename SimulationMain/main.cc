@@ -25,7 +25,7 @@
 #define D255(A) (A / 255.0f)
 #endif // !D255(A)
 
-float cube_side = 25.5f;
+float cube_side = 17.5f;
 
 int main(int argv, const char** argc)
 {
@@ -68,23 +68,23 @@ int main(int argv, const char** argc)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
 
-    omp_set_num_threads(4);
-    omp_set_dynamic(0);
+    //omp_set_num_threads(4);
+    //omp_set_dynamic(0);
 #pragma endregion
 
     SOARepository repository{ BALL_NUMBER, D3 };
     NormalMover mover{ &repository };
     SIMDMover simd_mover{ &repository };
     ForceGenerator generator{ &repository };
-    generator.AddForce(glm::vec3(0.0f, -7.0f, 0.0f));
+    generator.AddForce(glm::vec3(0.0f, -20.0f, 0.0f));
     SpatialHashGrid grid{ &repository };
     BallCollisions3d collisions;
-    WallCollisions3D walls{ -cube_side, cube_side, -cube_side , cube_side, -cube_side, cube_side, &repository};
+    WallCollisions3D walls{ -cube_side + 2.0f, cube_side + 25.0f, -cube_side , cube_side, -cube_side, cube_side, &repository};
     IncompressibilityConstraint constraint{ &repository, &grid };
     Shader shader{ "..\\Shaders\\BasicShader.vert", "..\\Shaders\\BasicShader.frag" };
     BallRenderer renderer{ &repository, &shader };
-    renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 1600.0f / 900.0f, 0.01f, 1000.00f));
-    renderer.UpdateViewMatrix({ 52.5f, 32.5, 52.5 }, { 10.0f, 0.0f, 10.0f });
+    renderer.UpdateProjectionPatrix(glm::perspective(45.0f, 16.0f / 9.0f, 0.01f, 1000.00f));
+    renderer.UpdateViewMatrix({ 25.0f, 25.0f, 25.0f}, { 5.0f, 0.0f, 5.0f });
     
     assert(!(BALL_NUMBER % SIMD_BLOCK_SIZE));
 
@@ -94,28 +94,27 @@ int main(int argv, const char** argc)
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(D255(14), D255(0), D255(71), D255(255));
+        glClearColor(D255(1), D255(1), D255(1), D255(255));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
         generator.ApplyForces();
-        mover.UpdateVelocities();                   
-        simd_mover.PredictPositions();
+        mover.UpdateVelocitiesPredictPositions();
         grid.UpdateGrid();
         grid.UpdateNeighbors();
-        for (int i = 0; i < 3; i++)
+        
+
+        for (int _ = 0; _ < SOLVER_ITERATIONS; _++)
         {
             constraint.CalculateLagrangeMultiplier();
-            constraint.CalculatePositionCorrections();
+            constraint.CalculatePositionCorrections();            
+            walls.CollideWalls();
             constraint.ApplyPositionCorrection();
         }
-        walls.CollideWalls();          
-        mover.AdjustVelocities();
-        constraint.CalculateNewVelocities();
-        constraint.ApplyNewVelocities();
-        simd_mover.UpdatePositions();               
-        generator.ZeroForces();
+        
+        constraint.UpdateAndVicosity();
+
         renderer.Draw();                            
 
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -137,7 +136,7 @@ int main(int argv, const char** argc)
             result *= 0.01;
             auto fps = 1000000.0 / result;
             std::cout << "fps: " << fps << std::endl;
-
+            std::cout << "denstiy[100]: " << repository.density_[100] << "\n";
             idx = 0;
             durations_.clear();
         }
@@ -145,6 +144,32 @@ int main(int argv, const char** argc)
         {
             idx++;
         }
+
+        if (glfwGetKey(window, GLFW_KEY_1))
+        {
+            shader.SetFloat("size", 1.0f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_2))
+        {
+            shader.SetFloat("size", 0.5f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_3))
+        {
+            shader.SetFloat("size", 0.25f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_4))
+        {
+            shader.SetFloat("size", 0.125f);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_5))
+        {
+            shader.SetFloat("size", 0.0625f);
+        }
+
 #pragma endregion
         glfwSwapBuffers(window);
     }

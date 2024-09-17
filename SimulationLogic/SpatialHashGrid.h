@@ -51,8 +51,7 @@ private:
 
 	SOARepository* repository_;
 
-	int Partition(unsigned int arr[][2], int low, int high);
-	void QuickSrot(unsigned int arr[BALL_NUMBER][2], int low, int high);
+	
 
 public:
 
@@ -62,7 +61,8 @@ public:
 	unsigned int spatial_lookup_[BALL_NUMBER][2];
 	unsigned int start_indices_[BALL_NUMBER];
 	std::vector<unsigned int> neighbors_[BALL_NUMBER];
-
+	int Partition(unsigned int arr[][2], int low, int high);
+	void QuickSrot(unsigned int arr[BALL_NUMBER][2], int low, int high);
 	void UpdateGrid();
 	void UpdateNeighbors();
 };

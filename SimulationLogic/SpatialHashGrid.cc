@@ -5,29 +5,29 @@
 
 void SpatialHashGrid::UpdateGrid()
 {
-	int n = repository_->size_;
+    float cell_size = CELL_SIZE;
 
-#pragma omp parallel for
-	for (int i = 0; i < n; i++)
-	{
-        unsigned int cellx = static_cast<unsigned int>(repository_->nx_[i] / CELL_SIZE);
-        unsigned int celly = static_cast<unsigned int>(repository_->ny_[i] / CELL_SIZE);
-        unsigned int cellz = static_cast<unsigned int>(repository_->nz_[i] / CELL_SIZE);
-		unsigned int hash = hash3uints(cellx, celly, cellz);
-        unsigned int key = hash % n;
-		spatial_lookup_[i][0] = key;
-		spatial_lookup_[i][1] = i;
-		start_indices_[i] = 4294967295;
-	}
+#pragma omp parallel for firstprivate(cell_size)
+    for (int i = 0; i < static_cast<int>(repository_->size_); i++)
+    {
+        unsigned int cellx = static_cast<unsigned int>(repository_->nx_[i] / cell_size);
+        unsigned int celly = static_cast<unsigned int>(repository_->ny_[i] / cell_size);
+        unsigned int cellz = static_cast<unsigned int>(repository_->nz_[i] / cell_size);
+        unsigned int hash = hash3uints(cellx, celly, cellz);
+        unsigned int key = hash % repository_->size_;
+        spatial_lookup_[i][0] = key;
+        spatial_lookup_[i][1] = i;
+        start_indices_[i] = 4294967295;
+    }
 
-	QuickSrot(spatial_lookup_, 0, n - 1);
+    QuickSrot(spatial_lookup_, 0, repository_->size_ - 1);
 
     if (spatial_lookup_[0][0] != 4294967295)
     {
         start_indices_[spatial_lookup_[0][0]] = 0;
     }
-#pragma omp parallel for
-    for (int i = 1; i < n; i++)
+
+    for (int i = 1; i < static_cast<int>(repository_->size_); i++)
     {
         if (spatial_lookup_[i][0] != spatial_lookup_[i - 1][0])
         {

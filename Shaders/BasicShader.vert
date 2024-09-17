@@ -6,6 +6,8 @@ layout (location = 0) in vec3 iv_normal;
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
 
+uniform float size = 0.5;
+
 layout(std430, binding = 1) buffer position_buffer 
 {
     float data[];
@@ -41,7 +43,7 @@ mat4 TranslationMatrix(vec3 translation)
 void main()
 {
     mat4 translation = TranslationMatrix(vec3(data[gl_InstanceID * 3], data[gl_InstanceID * 3 + 1], data[gl_InstanceID * 3 + 2]));
-    mat4 scale = ScaleMatrix(vec3(0.5));
+    mat4 scale = ScaleMatrix(vec3(size));
     mat4 model_matrix = translation * scale;
 
     vec4 world_position = model_matrix * vec4(iv_position, 1.0);

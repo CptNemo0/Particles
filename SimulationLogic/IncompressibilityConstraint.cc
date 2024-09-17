@@ -3,107 +3,79 @@
 
 void IncompressibilityConstraint::CalculateLagrangeMultiplier()
 {
-	for (int id = 0; id < static_cast<int>(repository_->size_); id++)
+	float relaxation_parameter = RELAXATION_PARAMETER;
+	float inv_rest_density = INV_REST_DENSITY;
+
+#pragma omp parallel for firstprivate(relaxation_parameter, inv_rest_density)
+	for (int i = 0; i < static_cast<int>(repository_->size_); i++)
 	{
-		repository_->gradient_[id] = glm::vec3(0.0f);
-		repository_->density_[id] = 0.0f;
-		float sum_squared_gradients = 0.0f;
+		glm::vec3 p_i(repository_->nx_[i], repository_->ny_[i], repository_->nz_[i]);
+		glm::vec3 gradient_i(0.0f);
+		float sum_of_squares = 0.0f;
+		repository_->density_[i] = 0.0f;
 
-		float& x = repository_->nx_[id];
-		float& y = repository_->ny_[id];
-		float& z = repository_->nz_[id];
-
-		for (const auto& idx : grid_->neighbors_[id])
+		for (const auto& j : grid_->neighbors_[i])
 		{
-			float& ox = repository_->nx_[idx];
-			float& oy = repository_->ny_[idx];
-			float& oz = repository_->nz_[idx];
+			glm::vec3 p_j(repository_->nx_[j], repository_->ny_[j], repository_->nz_[j]);
 
-			float displacement_x = x - ox;
-			float displacement_y = y - oy;
-			float displacement_z = z - oz;
+			glm::vec3 p_ij = p_i - p_j;
+			float magnitude = glm::length(p_ij);
 
-			float distance_squared = displacement_x * displacement_x + displacement_y * displacement_y + displacement_z * displacement_z;
-			float distance = sqrtf(distance_squared);
-			glm::vec3 direction = glm::vec3(displacement_x, displacement_y, displacement_z) / (distance + 1.0f);
+			if (magnitude < 0.000001f)
+			{
+				continue;
+			}
 
-			repository_->density_[id] += poly6(distance);
-			
-			glm::vec3 gradient_idx =  direction * spiky(distance) / rest_density;
-			repository_->gradient_[id] += gradient_idx;
-			sum_squared_gradients += glm::dot(gradient_idx, gradient_idx);
+			repository_->density_[i] += poly6(magnitude);
+			glm::vec3 gradient_j = spiky_gradient(p_ij, magnitude);
+			gradient_i += gradient_j;
+			sum_of_squares += glm::dot(gradient_j, gradient_j);
 		}
 
-		//if (id == 100)
-		//{
-		//	std::cout << sum_squared_gradients << std::endl;
-		//	std::cout << repository_->gradient_[id].x << " " << repository_->gradient_[id].y << " " << repository_->gradient_[id].z << " \n";
-		//}
-
-		float density_constraint = (repository_->density_[id] / rest_density) - 1.0f;
-		sum_squared_gradients += glm::dot(repository_->gradient_[id], repository_->gradient_[id]);
-		
-		repository_->lagrange_multiplier_[id] = (-1.0f * density_constraint) / (sum_squared_gradients + 100.0f);
+		float constraint = (repository_->density_[i] * inv_rest_density) - 1.0f;
+		sum_of_squares += glm::dot(gradient_i, gradient_i);
+		repository_->lagrange_multiplier_[i] = -1.0f * (constraint / (sum_of_squares + relaxation_parameter));
 	}
 }
 
 void IncompressibilityConstraint::CalculatePositionCorrections()
 {
-	for (int id = 0; id < static_cast<int>(repository_->size_); id++)
+	float influence_radius = INFLUENCE_RADIUS;
+	float inv_rest_density = INV_REST_DENSITY;
+#pragma omp parallel for firstprivate(inv_rest_density, influence_radius)
+	for (int i = 0; i < static_cast<int>(repository_->size_); i++)
 	{
-		glm::vec3 dp(0.0f); //= repository_->gradient_[id] * repository_->lagrange_multiplier_[id];
-
-		repository_->dx_[id] = 0.0f;
-		repository_->dy_[id] = 0.0f;
-		repository_->dz_[id] = 0.0f;
-		
-		float& x = repository_->nx_[id];
-		float& y = repository_->ny_[id];
-		float& z = repository_->nz_[id];
-		
-		for (const auto& idx : grid_->neighbors_[id])
+		glm::vec3 p_i(repository_->nx_[i], repository_->ny_[i], repository_->nz_[i]);
+		glm::vec3 offset = glm::vec3(0.0f);
+		for (const auto& j : grid_->neighbors_[i])
 		{
-			float& ox = repository_->nx_[idx];
-			float& oy = repository_->ny_[idx];
-			float& oz = repository_->nz_[idx];
-		
-			float displacement_x = x - ox;
-			float displacement_y = y - oy;
-			float displacement_z = z - oz;
-		
-			float distance_squared = displacement_x * displacement_x + displacement_y * displacement_y + displacement_z * displacement_z;
-			float distance = sqrtf(distance_squared);
-			glm::vec3 direction = glm::vec3(displacement_x, displacement_y, displacement_z) / (distance + 0.000001f);
-		
-			float lagrange_sum = repository_->lagrange_multiplier_[id] + repository_->lagrange_multiplier_[idx];
-			float s_corr = poly6(sqrtf(distance)) / poly6(0.3f * INFLUENCE_RADIUS);
-			s_corr = -1.0f * 0.1f * s_corr * s_corr * s_corr * s_corr;
-			lagrange_sum += s_corr;
-			glm::vec3 gradient = direction * spiky(distance);
-		
-			dp += gradient * lagrange_sum;
+			glm::vec3 p_j(repository_->nx_[j], repository_->ny_[j], repository_->nz_[j]);
+
+			glm::vec3 p_ij = p_i - p_j;
+			float magnitude = glm::length(p_ij);
+			glm::vec3 gradient = spiky_gradient(p_ij, magnitude);
+			float smoothing_kernel = (poly6(magnitude) / poly6(0.3f * influence_radius));
+			smoothing_kernel = smoothing_kernel * smoothing_kernel * smoothing_kernel * smoothing_kernel;
+			smoothing_kernel *= -0.002f;
+			float lagrange_sum = repository_->lagrange_multiplier_[i] + repository_->lagrange_multiplier_[j] + smoothing_kernel;
+			offset += gradient * lagrange_sum;
 		}
-		
-		dp /= rest_density;
 
-		//if (id == 100)
-		//{
-		//	std::cout << repository_->gradient_[id].x << " " << repository_->gradient_[id].y << " " << repository_->gradient_[id].z << " \n";
-		//}
-
-		repository_->dx_[id] += dp.x;
-		repository_->dy_[id] += dp.y;
-		repository_->dz_[id] += dp.z;
+		offset *= inv_rest_density;
+		repository_->dx_[i] = offset.x;
+		repository_->dy_[i] = offset.y;
+		repository_->dz_[i] = offset.z;
 	}
 }
 
 void IncompressibilityConstraint::ApplyPositionCorrection()
 {
-	for (int id = 0; id < static_cast<int>(repository_->size_); id++)
+#pragma omp parallel for
+	for (int i = 0; i < static_cast<int>(repository_->size_); i++)
 	{
-		repository_->nx_[id] += repository_->dx_[id];
-		repository_->ny_[id] += repository_->dy_[id];
-		repository_->nz_[id] += repository_->dz_[id];
+		repository_->nx_[i] += repository_->dx_[i];
+		repository_->ny_[i] += repository_->dy_[i];
+		repository_->nz_[i] += repository_->dz_[i];
 	}
 }
 
@@ -128,9 +100,9 @@ void IncompressibilityConstraint::CalculateNewVelocities()
 			sum_z = (repository_->speedz_[id] - repository_->speedz_[idx]) * kerneled;
 		}
 
-		sum_x *= 0.01f;
-		sum_y *= 0.01f;
-		sum_z *= 0.01f;
+		sum_x *= 0.1f;
+		sum_y *= 0.1f;
+		sum_z *= 0.1f;
 
 		repository_->pspeedx_[id] = repository_->speedx_[id] + sum_x;
 		repository_->pspeedy_[id] = repository_->speedy_[id] + sum_y;
@@ -145,5 +117,51 @@ void IncompressibilityConstraint::ApplyNewVelocities()
 		repository_->speedx_[id] = repository_->pspeedx_[id];
 		repository_->speedy_[id] = repository_->pspeedy_[id];
 		repository_->speedz_[id] = repository_->pspeedz_[id];
+	}
+}
+
+void IncompressibilityConstraint::UpdateAndVicosity()
+{
+	float inv_dixed_dt = INV_FIXED_DT;
+#pragma omp parallel for firstprivate(inv_dixed_dt)
+	for (int i = 0; i < static_cast<int>(repository_->size_); i++)
+	{
+		repository_->speedx_[i] = inv_dixed_dt * (repository_->nx_[i] - repository_->x_[i]);
+		repository_->speedy_[i] = inv_dixed_dt * (repository_->ny_[i] - repository_->y_[i]);
+		repository_->speedz_[i] = inv_dixed_dt * (repository_->nz_[i] - repository_->z_[i]);
+
+		glm::vec3 p_i(repository_->nx_[i], repository_->ny_[i], repository_->nz_[i]);
+		glm::vec3 v_i(repository_->speedx_[i], repository_->speedy_[i], repository_->speedz_[i]);
+		glm::vec3 new_v(0.0f);
+		glm::vec3 vorticity_sum(0.0f);
+
+		for (const auto& j : grid_->neighbors_[i])
+		{
+			glm::vec3 p_j(repository_->nx_[j], repository_->ny_[j], repository_->nz_[j]);
+			glm::vec3 v_j(repository_->speedx_[j], repository_->speedy_[j], repository_->speedz_[j]);
+
+			glm::vec3 p_ij = p_i - p_j;
+			glm::vec3 v_ij = v_i - v_j;
+
+			float magnitude = glm::length(p_ij);
+
+			vorticity_sum += glm::cross(v_ij, spiky_gradient(p_ij, magnitude));
+
+			new_v += poly6(magnitude) * v_ij;
+		}
+
+		new_v *= 0.01f;
+
+		repository_->speedx_[i] = repository_->speedx_[i] + new_v.x;
+		repository_->speedy_[i] = repository_->speedy_[i] + new_v.y;
+		repository_->speedz_[i] = repository_->speedz_[i] + new_v.z;
+
+		repository_->x_[i] = repository_->nx_[i];
+		repository_->y_[i] = repository_->ny_[i];
+		repository_->z_[i] = repository_->nz_[i];
+
+		repository_->output_position_[i * 3 + 0] = repository_->x_[i];
+		repository_->output_position_[i * 3 + 1] = repository_->y_[i];
+		repository_->output_position_[i * 3 + 2] = repository_->z_[i];
 	}
 }

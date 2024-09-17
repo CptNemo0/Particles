@@ -48,7 +48,7 @@ private:
 		{ 1,  1,  1},
 	};
 public:
-	const float rest_density = 50.0f;
+	float rest_density = 5.0f;
 	SOARepository* repository_;
 	SpatialHashGrid* grid_;
 	std::map<std::pair<unsigned int, unsigned int>, float> distance_cache_;
@@ -60,5 +60,6 @@ public:
 	void CalculateNewVelocities();
 	void ApplyPositionCorrection();
 	void ApplyNewVelocities();
+	void UpdateAndVicosity();
 };
 

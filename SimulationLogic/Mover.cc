@@ -17,9 +17,9 @@ void NormalMover::UpdateVelocities()
 #pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
-        repository_->speedx_[i] += (1.0f  /180.0f) * repository_->forcex_[i] * repository_->inv_mass_[i];
-        repository_->speedy_[i] += (1.0f / 180.0f) * repository_->forcey_[i] * repository_->inv_mass_[i];
-        repository_->speedz_[i] += (1.0f / 180.0f) * repository_->forcez_[i] * repository_->inv_mass_[i];
+        repository_->speedx_[i] = repository_->speedx_[i] + (1.0f / 240.0f) * repository_->forcex_[i];
+        repository_->speedy_[i] = repository_->speedy_[i] + (1.0f / 240.0f) * repository_->forcey_[i];
+        repository_->speedz_[i] = repository_->speedz_[i] + (1.0f / 240.0f) * repository_->forcez_[i];
     }
 
 }
@@ -30,9 +30,9 @@ void NormalMover::PredictPositions()
 #pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
-        repository_->nx_[i] = repository_->x_[i] + repository_->speedx_[i] * (1.0f / 180.0f);
-        repository_->ny_[i] = repository_->y_[i] + repository_->speedy_[i] * (1.0f / 180.0f);
-        repository_->nz_[i] = repository_->z_[i] + repository_->speedz_[i] * (1.0f / 180.0f);
+        repository_->nx_[i] = repository_->x_[i] + repository_->speedx_[i] * (1.0f / 240.0f);
+        repository_->ny_[i] = repository_->y_[i] + repository_->speedy_[i] * (1.0f / 240.0f);
+        repository_->nz_[i] = repository_->z_[i] + repository_->speedz_[i] * (1.0f / 240.0f);
     }
     
 }
@@ -43,9 +43,13 @@ void NormalMover::AdjustVelocities()
     #pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
-        repository_->speedx_[i] = (repository_->nx_[i] - repository_->x_[i]) * 180.0f;
-        repository_->speedy_[i] = (repository_->ny_[i] - repository_->y_[i]) * 180.0f;
-        repository_->speedz_[i] = (repository_->nz_[i] - repository_->z_[i]) * 180.0f;
+        repository_->speedx_[i] = (repository_->nx_[i] - repository_->x_[i]);
+        repository_->speedy_[i] = (repository_->ny_[i] - repository_->y_[i]);
+        repository_->speedz_[i] = (repository_->nz_[i] - repository_->z_[i]);
+
+        repository_->speedx_[i] *= 240.0f;
+        repository_->speedy_[i] *= 240.0f;
+        repository_->speedz_[i] *= 240.0f;
     }
 }
 
@@ -69,6 +73,26 @@ void NormalMover::UpdatePositions()
     }
 }
 
+void NormalMover::UpdateVelocitiesPredictPositions()
+{
+    float dt = (FIXED_DT);
+#pragma omp parallel for firstprivate(dt)
+    for (int i = 0; i < static_cast<int>(repository_->size_); i++)
+    {
+        repository_->speedx_[i] += dt * repository_->forcex_[i];
+        repository_->speedy_[i] += dt * repository_->forcey_[i];
+        repository_->speedz_[i] += dt * repository_->forcez_[i];
+
+        repository_->forcex_[i] = 0.0f;
+        repository_->forcey_[i] = 0.0f;
+        repository_->forcez_[i] = 0.0f;
+
+        repository_->nx_[i] = repository_->x_[i] + dt * repository_->speedx_[i];
+        repository_->ny_[i] = repository_->y_[i] + dt * repository_->speedy_[i];
+        repository_->nz_[i] = repository_->z_[i] + dt * repository_->speedz_[i];
+    }
+}
+
 
 void SIMDMover::Init()
 {
@@ -83,7 +107,7 @@ void SIMDMover::UpdateVelocities()
 #pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
-        __m256 dt     = _mm256_set1_ps(1.0f / 180.0f);
+        __m256 dt     = _mm256_set1_ps(1.0f / 240.0f);
 
         __m256 speedx = _mm256_load_ps(&(repository_->speedx_[i]));
         __m256 speedy = _mm256_load_ps(&(repository_->speedy_[i]));
@@ -112,7 +136,7 @@ void SIMDMover::PredictPositions()
 #pragma omp parallel for
     for (int i = 0; i < n; i += step)
     {
-        __m256 dt     = _mm256_set1_ps(1.0f / 180.0f);
+        __m256 dt     = _mm256_set1_ps(1.0f / 240.0f);
 
         __m256 x      = _mm256_load_ps(&repository_->x_[i]);
         __m256 y      = _mm256_load_ps(&repository_->y_[i]);
@@ -138,9 +162,9 @@ void SIMDMover::UpdatePositions()
 #pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
-        repository_->speedx_[i] = (repository_->nx_[i] - repository_->x_[i]) * 180.0f;
-        repository_->speedy_[i] = (repository_->ny_[i] - repository_->y_[i]) * 180.0f;
-        repository_->speedz_[i] = (repository_->nz_[i] - repository_->z_[i]) * 180.0f;
+        repository_->speedx_[i] = (repository_->nx_[i] - repository_->x_[i]) * 240.0f;
+        repository_->speedy_[i] = (repository_->ny_[i] - repository_->y_[i]) * 240.0f;
+        repository_->speedz_[i] = (repository_->nz_[i] - repository_->z_[i]) * 240.0f;
 
         repository_->px_[i] = repository_->x_[i];
         repository_->py_[i] = repository_->y_[i];
@@ -162,8 +186,28 @@ void SIMDMover::AdjustVelocities()
 #pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
-        repository_->speedx_[i] = (repository_->nx_[i] - repository_->x_[i]) * 180.0f;
-        repository_->speedy_[i] = (repository_->ny_[i] - repository_->y_[i]) * 180.0f;
-        repository_->speedz_[i] = (repository_->nz_[i] - repository_->z_[i]) * 180.0f;
+        repository_->speedx_[i] = (repository_->nx_[i] - repository_->x_[i]) * 240.0f;
+        repository_->speedy_[i] = (repository_->ny_[i] - repository_->y_[i]) * 240.0f;
+        repository_->speedz_[i] = (repository_->nz_[i] - repository_->z_[i]) * 240.0f;
+    }
+}
+
+void SIMDMover::UpdateVelocitiesPredictPositions()
+{
+    float dt = FIXED_DT;
+#pragma omp parallel for private(dt)
+    for (int i = 0; i < static_cast<int>(repository_->size_); i++)
+    {
+        repository_->speedx_[i] += dt * repository_->forcex_[i];
+        repository_->speedy_[i] += dt * repository_->forcey_[i];
+        repository_->speedz_[i] += dt * repository_->forcez_[i];
+
+        repository_->forcex_[i] = 0.0f;
+        repository_->forcey_[i] = 0.0f;
+        repository_->forcez_[i] = 0.0f;
+
+        repository_->nx_[i] = repository_->x_[i] + dt * repository_->speedx_[i];
+        repository_->ny_[i] = repository_->y_[i] + dt * repository_->speedy_[i];
+        repository_->nz_[i] = repository_->z_[i] + dt * repository_->speedz_[i];
     }
 }

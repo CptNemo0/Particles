@@ -16,6 +16,7 @@ class Mover
 		virtual void PredictPositions() = 0;
 		virtual void AdjustVelocities() = 0;
 		virtual void UpdatePositions () = 0;
+		virtual void UpdateVelocitiesPredictPositions() = 0;
 };
 
 class NormalMover : public Mover
@@ -29,7 +30,8 @@ class NormalMover : public Mover
 		void PredictPositions() override;
 		void AdjustVelocities() override;
 		void UpdatePositions () override;
-};
+		void UpdateVelocitiesPredictPositions() override;
+}; 
 
 class SIMDMover : public Mover
 {
@@ -41,5 +43,6 @@ class SIMDMover : public Mover
 		void UpdateVelocities() override;
 		void PredictPositions() override;
 		void UpdatePositions () override;
-		void AdjustVelocities() ;
+		void AdjustVelocities();
+		void UpdateVelocitiesPredictPositions() override;
 };

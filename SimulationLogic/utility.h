@@ -48,11 +48,48 @@ static inline glm::vec3 spiky_gradient(float x, float y, float z)
 	return return_value;
 }
 
+static inline glm::vec3 spiky_gradient(glm::vec3 r)
+{
+	constexpr float h = INFLUENCE_RADIUS;
+	constexpr float hpow6 = h * h * h * h * h * h;
+	constexpr float factor = (-45.0f / (3.14159265359f * hpow6));
+
+	glm::vec3 return_value = glm::vec3(0.0f);
+
+	float magnitude = glm::length(r) + 0.0001f;
+	glm::vec3 r_normalized = r / magnitude;
+
+	if (0 < magnitude && magnitude < h)
+	{
+		return_value = (h - magnitude) * (h - magnitude) * factor * r_normalized;
+	}
+
+	return return_value;
+}
+
+static inline glm::vec3 spiky_gradient(glm::vec3 r, float magnitude)
+{
+	constexpr float h = INFLUENCE_RADIUS;
+	constexpr float hpow6 = h * h * h * h * h * h;
+	constexpr float factor = (-45.0f / (3.14159265359f * hpow6));
+
+	glm::vec3 return_value = glm::vec3(0.0f);
+
+	glm::vec3 r_normalized = r / magnitude;
+
+	if (0 < magnitude && magnitude < h)
+	{
+		return_value = (h - magnitude) * (h - magnitude) * factor * r_normalized;
+	}
+
+	return return_value;
+}
+
 static inline float spiky(float distance)
 {
 	constexpr float h = INFLUENCE_RADIUS;
 	constexpr float hpow6 = h * h * h * h * h * h;
-	constexpr float factor = 45.0f / (3.14159265359f * hpow6);
+	constexpr float factor = -45.0f / (3.14159265359f * hpow6);
 
 	float a = 0.0f;
 
